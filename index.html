@@ -12,14 +12,17 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; margin:0; padding:0; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin:0; padding:0; overflow:hidden; }
     .hidden { display: none !important; }
-    .preview, .game-mode, #loadingOverlay { position: fixed; inset: 0; }
+    .preview, .game-mode, #loadingOverlay, #orientationBlock { position: fixed; inset: 0; z-index: 10; }
     .preview { background: linear-gradient(to bottom, #0a0a0f, #000); }
-    .game-mode { background: #000; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box; }
-    .logo { box-shadow: 0 0 60px -10px rgb(59 130 246); }
+    .game-mode { background: #000; display: flex; align-items: center; justify-content: center; }
     #loadingOverlay { transition: opacity 0.6s ease; background: #000; z-index: 9999; }
     #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
+    #orientationBlock { background: rgba(0,0,0,0.95); color: white; flex-direction: column; text-align: center; justify-content: center; }
+    #passText { font-size: 1.2rem; color: #4b5563; }
+    .rotate-icon { font-size: 4rem; animation: rotate 2s linear infinite; }
+    @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(90deg); } }
   </style>
 </head>
 <body class="bg-black text-white">
@@ -27,6 +30,16 @@
   <!-- Loading sequence -->
   <div id="loadingOverlay" class="flex items-center justify-center hidden">
     <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="Loading" class="w-full h-full object-cover">
+  </div>
+
+  <!-- Blokir kalau bukan landscape -->
+  <div id="orientationBlock" class="flex hidden">
+    <div>
+      <div class="rotate-icon mb-6">↻</div>
+      <h2 class="text-2xl font-bold mb-4">Putar HP ke Landscape</h2>
+      <p class="text-lg text-zinc-300">Game hanya bisa dimainkan dalam mode landscape.</p>
+      <p class="text-sm text-zinc-500 mt-8">Putar perangkatmu secara horizontal untuk mulai.</p>
+    </div>
   </div>
 
   <!-- Preview (install page) -->
@@ -47,18 +60,9 @@
     </div>
   </div>
 
-  <!-- Game content -->
-  <div id="game" class="game-mode hidden flex flex-col items-center justify-center">
-    <div class="text-center p-6">
-      <h2 class="text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-        BUDU GAME
-      </h2>
-      <p class="text-zinc-400 mb-10 text-xl">Mode Landscape • Fullscreen</p>
-      
-      <div class="w-full max-w-md aspect-video bg-zinc-900 border border-zinc-700 rounded-2xl flex items-center justify-center">
-        <p class="text-3xl text-zinc-600">GAME AREA<br>(masukkan kode game di sini)</p>
-      </div>
-    </div>
+  <!-- Game content (minimal "pass") -->
+  <div id="game" class="game-mode hidden">
+    <p id="passText">pass</p>
   </div>
 
   <script>
@@ -67,7 +71,6 @@
     let deferredPrompt = null;
     const INSTALLED_FLAG = 'budu_installed';
 
-    // Hide preview secepat mungkin di load awal kalau sudah installed
     if (localStorage.getItem(INSTALLED_FLAG) === 'true') {
       document.getElementById('preview').classList.add('hidden');
     }
@@ -78,14 +81,29 @@
     });
 
     function isInstalled() {
-      const standalone = 
-        window.matchMedia('(display-mode: standalone)').matches ||
-        navigator.standalone === true ||
-        window.navigator.standalone === true;
-
+      const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         navigator.standalone === true ||
+                         window.navigator.standalone === true;
       const flagged = localStorage.getItem(INSTALLED_FLAG) === 'true';
-
       return standalone || flagged;
+    }
+
+    function isLandscape() {
+      return window.matchMedia('(orientation: landscape)').matches;
+    }
+
+    function checkAndLockOrientation() {
+      if (isLandscape()) {
+        // Lock ke landscape kalau support
+        if (screen.orientation && screen.orientation.lock) {
+          screen.orientation.lock('landscape').catch(() => console.log('Lock gagal, tapi sudah landscape'));
+        }
+        document.getElementById('orientationBlock').classList.add('hidden');
+        return true;
+      } else {
+        document.getElementById('orientationBlock').classList.remove('hidden');
+        return false;
+      }
     }
 
     function showLoadingSequence(callback) {
@@ -111,19 +129,39 @@
       const installed = isInstalled();
 
       if (installed) {
-        // Langsung sembunyikan preview dari awal
         document.getElementById('preview').classList.add('hidden');
-        showLoadingSequence(() => {
-          document.getElementById('game').classList.remove('hidden');
-          screen.orientation?.lock('landscape').catch(() => {});
-          document.documentElement.requestFullscreen().catch(() => {});
-        });
+
+        // Cek orientation dulu sebelum loading
+        if (checkAndLockOrientation()) {
+          showLoadingSequence(() => {
+            document.getElementById('game').classList.remove('hidden');
+          });
+        }
       } else {
         document.getElementById('preview').classList.remove('hidden');
         document.getElementById('game').classList.add('hidden');
         document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('orientationBlock').classList.add('hidden');
       }
     }
+
+    // Listen perubahan orientation
+    window.matchMedia('(orientation: landscape)').addEventListener('change', (e) => {
+      if (isInstalled()) {
+        if (e.matches) {
+          checkAndLockOrientation();
+          // Kalau game sudah hidden, tampilkan setelah landscape
+          if (document.getElementById('game').classList.contains('hidden')) {
+            showLoadingSequence(() => {
+              document.getElementById('game').classList.remove('hidden');
+            });
+          }
+        } else {
+          document.getElementById('game').classList.add('hidden');
+          document.getElementById('orientationBlock').classList.remove('hidden');
+        }
+      }
+    });
 
     async function triggerInstall() {
       if (deferredPrompt) {
@@ -142,7 +180,6 @@
 
       window.addEventListener('appinstalled', () => {
         localStorage.setItem(INSTALLED_FLAG, 'true');
-        // Tidak reload supaya tidak flash preview lagi
       });
     });
 
