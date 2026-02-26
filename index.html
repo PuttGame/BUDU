@@ -63,20 +63,40 @@
     });
 
     function isInstalled() {
-      return window.matchMedia('(display-mode: standalone)').matches ||
-             navigator.standalone === true ||
-             window.navigator.standalone === true;
+      const isStandalone = 
+        window.matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone === true ||
+        window.navigator.standalone === true;
+      
+      console.log('isInstalled check:', {
+        matchMedia: window.matchMedia('(display-mode: standalone)').matches,
+        navigatorStandalone: navigator.standalone,
+        windowStandalone: window.navigator.standalone
+      });
+      
+      return isStandalone;
     }
 
     function initMode() {
-      if (isInstalled()) {
+      const standalone = isInstalled();
+      console.log('initMode: standalone mode?', standalone);
+
+      if (standalone) {
         document.getElementById('preview').classList.add('hidden');
         document.getElementById('game').classList.remove('hidden');
+        
+        // Coba lock orientation ke landscape
         if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(() => {});
+          screen.orientation.lock('landscape').catch(err => {
+            console.log('Orientation lock gagal:', err);
+          });
         }
+        
+        // Coba masuk fullscreen
         if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
+          document.documentElement.requestFullscreen().catch(err => {
+            console.log('Fullscreen gagal:', err);
+          });
         }
       } else {
         document.getElementById('preview').classList.remove('hidden');
@@ -86,22 +106,41 @@
 
     async function triggerInstall() {
       if (!deferredPrompt) {
-        alert("Prompt install masih belum muncul.\n\nCek ini:\n1. Buka DevTools (F12 atau inspect) > tab Application > Manifest → apakah load tanpa error?\n2. Tab Service Workers → apakah sw.js registered?\n3. Reload halaman 2-3 kali\n4. Coba di Chrome Android terbaru\nKalau masih error, kirim screenshot DevTools ke aku.");
+        alert("Prompt install masih belum muncul.\n\nCek:\n1. DevTools > Application > Manifest (no error?)\n2. Service Workers registered?\n3. Reload 2-3x\n4. Pakai Chrome Android terbaru");
         return;
       }
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
       if (outcome === 'accepted') {
+        console.log('Install diterima user');
         setTimeout(() => location.reload(), 800);
+      } else {
+        console.log('Install dibatalkan user');
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('installBtn')?.addEventListener('click', triggerInstall);
       initMode();
-      window.addEventListener('appinstalled', () => setTimeout(() => location.reload(), 500));
+      window.addEventListener('appinstalled', () => {
+        console.log('App berhasil di-install');
+        setTimeout(() => location.reload(), 500);
+      });
     });
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/BUDU/sw.js')
+          .then(reg => {
+            console.log('Service Worker registered! Scope:', reg.scope);
+          })
+          .catch(err => {
+            console.error('Service Worker registration failed:', err);
+          });
+      });
+    }
   </script>
 </body>
 </html>
