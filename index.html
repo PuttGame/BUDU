@@ -57,66 +57,70 @@
     let deferredPrompt = null;
 
     window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('Event beforeinstallprompt berhasil di-trigger!');
+      console.log('beforeinstallprompt triggered');
       e.preventDefault();
       deferredPrompt = e;
     });
 
     function isInstalled() {
-      const isStandalone = 
-        window.matchMedia('(display-mode: standalone)').matches ||
-        navigator.standalone === true ||
-        window.navigator.standalone === true;
+      const mediaStandalone = window.matchMedia('(display-mode: standalone)').matches;
+      const navStandalone = navigator.standalone === true;
+      const winStandalone = window.navigator.standalone === true;
       
-      console.log('isInstalled check:', {
-        matchMedia: window.matchMedia('(display-mode: standalone)').matches,
-        navigatorStandalone: navigator.standalone,
-        windowStandalone: window.navigator.standalone
+      // Fallback visual kuat untuk Android standalone
+      const approxStandalone = 
+        (window.innerHeight / screen.height > 0.92) && 
+        (window.innerWidth / screen.width > 0.92) &&
+        window.outerWidth === 0 &&  // sering 0 di standalone
+        !document.referrer.includes('http');  // bukan dari tab browser
+
+      console.log('Detection details:', {
+        mediaStandalone,
+        navStandalone,
+        winStandalone,
+        approxStandalone,
+        innerVsScreenH: `\( {window.innerHeight}/ \){screen.height}`,
+        outerWidth: window.outerWidth,
+        referrer: document.referrer || 'none'
       });
-      
-      return isStandalone;
+
+      return mediaStandalone || navStandalone || winStandalone || approxStandalone;
     }
 
     function initMode() {
-      const standalone = isInstalled();
-      console.log('initMode: standalone mode?', standalone);
+      setTimeout(() => {
+        const isStand = isInstalled();
+        console.log('initMode → standalone detected?', isStand);
 
-      if (standalone) {
-        document.getElementById('preview').classList.add('hidden');
-        document.getElementById('game').classList.remove('hidden');
-        
-        // Coba lock orientation ke landscape
-        if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(err => {
-            console.log('Orientation lock gagal:', err);
-          });
+        if (isStand) {
+          document.getElementById('preview').classList.add('hidden');
+          document.getElementById('game').classList.remove('hidden');
+          
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(err => console.log('Orientation lock error:', err));
+          }
+          
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+          }
+        } else {
+          document.getElementById('preview').classList.remove('hidden');
+          document.getElementById('game').classList.add('hidden');
         }
-        
-        // Coba masuk fullscreen
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(err => {
-            console.log('Fullscreen gagal:', err);
-          });
-        }
-      } else {
-        document.getElementById('preview').classList.remove('hidden');
-        document.getElementById('game').classList.add('hidden');
-      }
+      }, 500); // delay 500ms agar detection lebih akurat setelah load
     }
 
     async function triggerInstall() {
       if (!deferredPrompt) {
-        alert("Prompt install masih belum muncul.\n\nCek:\n1. DevTools > Application > Manifest (no error?)\n2. Service Workers registered?\n3. Reload 2-3x\n4. Pakai Chrome Android terbaru");
+        alert("Prompt install belum muncul. Coba reload 2-3 kali atau cek DevTools > Application > Manifest & Service Workers.");
         return;
       }
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
       if (outcome === 'accepted') {
-        console.log('Install diterima user');
-        setTimeout(() => location.reload(), 800);
-      } else {
-        console.log('Install dibatalkan user');
+        console.log('Install diterima');
+        setTimeout(() => location.reload(), 1000);
       }
     }
 
@@ -124,8 +128,8 @@
       document.getElementById('installBtn')?.addEventListener('click', triggerInstall);
       initMode();
       window.addEventListener('appinstalled', () => {
-        console.log('App berhasil di-install');
-        setTimeout(() => location.reload(), 500);
+        console.log('Event appinstalled terpicu');
+        setTimeout(() => location.reload(), 800);
       });
     });
 
@@ -133,12 +137,8 @@
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/BUDU/sw.js')
-          .then(reg => {
-            console.log('Service Worker registered! Scope:', reg.scope);
-          })
-          .catch(err => {
-            console.error('Service Worker registration failed:', err);
-          });
+          .then(reg => console.log('SW registered! Scope:', reg.scope))
+          .catch(err => console.error('SW registration gagal:', err));
       });
     }
   </script>
