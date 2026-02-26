@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budu-v1';
+const CACHE_NAME = 'budu-v2';  // versi baru agar cache lama otomatis dibersihkan
 const BASE_PATH = '/BUDU/';
 const urlsToCache = [
   BASE_PATH,
@@ -7,31 +7,28 @@ const urlsToCache = [
   BASE_PATH + 'assets/logo.png',
   BASE_PATH + 'assets/icon-192.png',
   BASE_PATH + 'assets/icon-512.png'
-  // Tambah aset game lain di sini nanti, misal: BASE_PATH + 'game.js', dll
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())  // Langsung aktifkan SW baru
+      .then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then(keys => {
       return Promise.all(
-        cacheNames.filter(name => name !== CACHE_NAME)
-          .map(name => caches.delete(name))
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       );
-    }).then(() => self.clients.claim())  // Ambil kontrol client langsung
+    }).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(response => response || fetch(event.request))
+    caches.match(event.request).then(res => res || fetch(event.request))
   );
 });
