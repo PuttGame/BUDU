@@ -5,8 +5,8 @@
   "start_url": "/BUDU/",
   "display": "fullscreen",
   "orientation": "landscape",
-  "theme_color": "#000000",
-  "background_color": "#000000",
+  "theme_color": "#1a1a2e",
+  "background_color": "#0f0f1e",
   "icons": [
     {
       "src": "/BUDU/assets/icon-192.png",
