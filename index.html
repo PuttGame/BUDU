@@ -5,24 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BUDU</title>
   
+  <!-- PWA Tags -->
   <link rel="manifest" href="/BUDU/manifest.json">
-  <meta name="theme-color" content="#1a1a2e">
+  <meta name="theme-color" content="#000000">
+  <meta name="background-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; margin:0; padding:0; overflow:hidden; }
+    body { 
+      font-family: system-ui, -apple-system, sans-serif; 
+      margin: 0; padding: 0; 
+      overflow: hidden; 
+      background: #000; 
+    }
     .hidden { display: none !important; }
-    .preview, .game-mode, #loadingOverlay, #orientationBlock { position: fixed; inset: 0; z-index: 10; }
-    .preview { background: linear-gradient(to bottom, #0a0a0f, #000); }
-    .game-mode { background: #000; display: flex; align-items: center; justify-content: center; }
-    #loadingOverlay { transition: opacity 0.6s ease; background: #000; z-index: 9999; }
+    .preview, .game-mode, #loadingOverlay, #orientationBlock { 
+      position: fixed; inset: 0; z-index: 10; 
+    }
+    .preview { 
+      background: linear-gradient(to bottom, #0a0a0f, #000); 
+      display: flex; align-items: center; justify-content: center; 
+    }
+    .game-mode { 
+      background: #000; 
+      display: flex; align-items: center; justify-content: center; 
+    }
+    #loadingOverlay { 
+      transition: opacity 0.6s ease; 
+      background: #000; 
+      z-index: 9999; 
+    }
     #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
-    #orientationBlock { background: rgba(0,0,0,0.95); color: white; flex-direction: column; text-align: center; justify-content: center; }
-    #passText { font-size: 1.2rem; color: #4b5563; }
-    .rotate-icon { font-size: 4rem; animation: rotate 2s linear infinite; }
-    @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(90deg); } }
+    #orientationBlock { 
+      background: rgba(0,0,0,0.95); 
+      color: white; 
+      flex-direction: column; 
+      text-align: center; 
+      justify-content: center; 
+    }
+    #passText { 
+      font-size: 1.2rem; 
+      color: #4b5563; 
+      font-weight: 400; 
+      letter-spacing: 0.1em; 
+    }
+    .rotate-icon { 
+      font-size: 5rem; 
+      animation: rotate 2s linear infinite; 
+    }
+    @keyframes rotate { 
+      0% { transform: rotate(0deg); } 
+      100% { transform: rotate(90deg); } 
+    }
+    /* Hilangkan highlight & border focus */
+    :focus, :focus-visible { outline: none !important; }
+    * { -webkit-tap-highlight-color: transparent !important; }
   </style>
 </head>
 <body class="bg-black text-white">
@@ -36,9 +75,9 @@
   <div id="orientationBlock" class="flex hidden">
     <div>
       <div class="rotate-icon mb-6">↻</div>
-      <h2 class="text-2xl font-bold mb-4">Putar HP ke Landscape</h2>
-      <p class="text-lg text-zinc-300">Game hanya bisa dimainkan dalam mode landscape.</p>
-      <p class="text-sm text-zinc-500 mt-8">Putar perangkatmu secara horizontal untuk mulai.</p>
+      <h2 class="text-3xl font-bold mb-4">Putar ke Landscape</h2>
+      <p class="text-xl text-zinc-300">Game hanya bisa dimainkan dalam mode landscape.</p>
+      <p class="text-sm text-zinc-500 mt-8">Putar HP-mu secara horizontal untuk mulai.</p>
     </div>
   </div>
 
@@ -46,7 +85,8 @@
   <div id="preview">
     <div class="flex flex-col items-center justify-center h-full">
       <div class="text-center">
-        <img src="/BUDU/assets/logo.png" alt="BUDU Logo" class="logo w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover">
+        <img src="/BUDU/assets/logo.png" alt="BUDU Logo" 
+             class="logo w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover">
         <h1 class="mt-10 text-7xl font-black tracking-widest">BUDU</h1>
         <p class="mt-2 text-blue-400 text-xl">Game Seru • Installable</p>
       </div>
@@ -60,7 +100,7 @@
     </div>
   </div>
 
-  <!-- Game content (minimal "pass") -->
+  <!-- Game content minimal -->
   <div id="game" class="game-mode hidden">
     <p id="passText">pass</p>
   </div>
@@ -82,6 +122,7 @@
 
     function isInstalled() {
       const standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         window.matchMedia('(display-mode: fullscreen)').matches ||
                          navigator.standalone === true ||
                          window.navigator.standalone === true;
       const flagged = localStorage.getItem(INSTALLED_FLAG) === 'true';
@@ -94,9 +135,8 @@
 
     function checkAndLockOrientation() {
       if (isLandscape()) {
-        // Lock ke landscape kalau support
         if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(() => console.log('Lock gagal, tapi sudah landscape'));
+          screen.orientation.lock('landscape').catch(() => {});
         }
         document.getElementById('orientationBlock').classList.add('hidden');
         return true;
@@ -131,7 +171,6 @@
       if (installed) {
         document.getElementById('preview').classList.add('hidden');
 
-        // Cek orientation dulu sebelum loading
         if (checkAndLockOrientation()) {
           showLoadingSequence(() => {
             document.getElementById('game').classList.remove('hidden');
@@ -145,12 +184,10 @@
       }
     }
 
-    // Listen perubahan orientation
     window.matchMedia('(orientation: landscape)').addEventListener('change', (e) => {
       if (isInstalled()) {
         if (e.matches) {
           checkAndLockOrientation();
-          // Kalau game sudah hidden, tampilkan setelah landscape
           if (document.getElementById('game').classList.contains('hidden')) {
             showLoadingSequence(() => {
               document.getElementById('game').classList.remove('hidden');
