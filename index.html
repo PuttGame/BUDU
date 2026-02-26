@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BUDU</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- PREVIEW MODE (di browser) -->
+  <div id="preview-mode">
+    <div class="top-bar">
+      <span class="github-logo">🐙</span>
+      <span class="url">puttgame.github.io/BUDU</span>
+    </div>
+    <div class="install-card">
+      <h2>Install app</h2>
+      <div class="app-info">
+        <img src="logo.png" alt="BUDU" class="app-logo">
+        <div>
+          <strong>BUDU</strong>
+          <p>puttgame.github.io/BUDU</p>
+        </div>
+      </div>
+      <div class="buttons">
+        <button id="cancel-btn">Cancel</button>
+        <button id="install-btn">Install</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- APP MODE (setelah di-install) -->
+  <div id="app-mode" class="hidden">
+    <div id="black1" class="screen"></div>
+    <div id="splash" class="screen"><img src="splashscreen.png" alt="splash"></div>
+    <div id="black2" class="screen"></div>
+    <div id="load" class="screen">
+      <img src="loadsplash.png" alt="load">
+      <div id="loader" class="loader-container">
+        <div class="spinner"></div>
+        <span>loading</span>
+      </div>
+    </div>
+    <div id="pass" class="screen">
+      <div class="pass-text">PASS</div>
+    </div>
+    <div id="main-app" class="screen hidden">
+      <h1>BUDU Game Loaded!</h1>
+      <p>Progress terakhir: <span id="progress-val">0</span></p>
+      <button id="advance-btn">Advance Progress & Save</button>
+      <small>LocalStorage per HP (progress tidak hilang)</small>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
