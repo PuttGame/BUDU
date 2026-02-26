@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BUDU</title>
 
-<!-- PWA tetap ada -->
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
 
@@ -41,7 +41,6 @@ html, body {
     font-family: sans-serif;
 }
 
-/* Animasi spinner */
 .spinner {
     width: 12px;
     height: 12px;
@@ -56,21 +55,22 @@ html, body {
     100% { transform: rotate(360deg); }
 }
 
-/* Posisi Bubu & Mobil */
+/* Bubu di tengah dan diperbesar */
 #bubu {
     position: absolute;
-    height: 40%;
+    height: 55%;
     top: 50%;
-    left: 60%;
+    left: 50%;
     transform: translate(-50%, -50%);
     display: none;
 }
 
+/* Mobil di kiri dan diperbesar */
 #car {
     position: absolute;
-    height: 30%;
-    top: 65%;
-    left: 72%;
+    height: 45%;
+    top: 60%;
+    left: 35%;
     transform: translate(-50%, -50%);
     display: none;
 }
@@ -101,33 +101,33 @@ html, body {
 
 <script>
 
-/* SERVICE WORKER (JANGAN DIUBAH) */
+/* SERVICE WORKER */
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", function () {
         navigator.serviceWorker.register("sw.js");
     });
 }
 
-/* Timeline sesuai permintaan */
+/* Timeline */
 
 setTimeout(() => {
     black1.style.display = "none";
     watermark.style.display = "block";
-}, 2000); // hitam 2 detik
+}, 2000);
 
 setTimeout(() => {
     watermark.style.display = "none";
     black2.style.display = "block";
-}, 6000); // watermark 4 detik
+}, 6000);
 
 setTimeout(() => {
     black2.style.display = "none";
     loadscreen.style.display = "block";
-}, 9000); // hitam 3 detik
+}, 9000);
 
 setTimeout(() => {
     loadingContainer.style.display = "flex";
-}, 13000); // loadscreen muncul 4 detik baru loading kecil
+}, 13000);
 
 setTimeout(() => {
     loadscreen.style.display = "none";
@@ -137,7 +137,6 @@ setTimeout(() => {
     bubu.style.display = "block";
     car.style.display = "block";
 
-    // aktifkan musik
     const music = document.getElementById("homesong");
     music.play().catch(() => {
         document.body.addEventListener("click", () => {
@@ -145,7 +144,7 @@ setTimeout(() => {
         }, { once: true });
     });
 
-}, 21000); // loading 8 detik
+}, 21000);
 
 </script>
 
