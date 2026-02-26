@@ -28,8 +28,8 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- Overlay loading sequence -->
-  <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black">
+  <!-- Loading overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black hidden">
     <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="Loading" class="w-full h-full object-cover">
   </div>
 
@@ -67,6 +67,7 @@
     tailwind.config = { content: ["*"] }
 
     let deferredPrompt = null;
+    const INSTALLED_FLAG = 'budu_installed';
 
     window.addEventListener('beforeinstallprompt', (e) => {
       console.log('beforeinstallprompt triggered');
@@ -75,37 +76,30 @@
     });
 
     function isInstalled() {
-      const mediaStandalone = window.matchMedia('(display-mode: standalone)').matches;
-      const navStandalone = navigator.standalone === true;
-      const winStandalone = window.navigator.standalone === true;
-      
-      const approxStandalone = 
-        (window.innerHeight / screen.height > 0.92) && 
-        (window.innerWidth / screen.width > 0.92) &&
+      const isStandalone = 
+        window.matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone === true ||
+        window.navigator.standalone === true;
+
+      const alreadyInstalled = localStorage.getItem(INSTALLED_FLAG) === 'true';
+
+      const approx = 
+        (window.innerHeight / screen.height > 0.92) &&
         window.outerWidth === 0 &&
         !document.referrer.includes('http');
 
-      console.log('Detection details:', {
-        mediaStandalone,
-        navStandalone,
-        winStandalone,
-        approxStandalone,
-        innerVsScreenH: `\( {window.innerHeight}/ \){screen.height}`,
-        outerWidth: window.outerWidth,
-        referrer: document.referrer || 'none'
-      });
+      console.log('Detection:', { isStandalone, alreadyInstalled, approx });
 
-      return mediaStandalone || navStandalone || winStandalone || approxStandalone;
+      return isStandalone || alreadyInstalled || approx;
+    }
+
+    function markAsInstalled() {
+      localStorage.setItem(INSTALLED_FLAG, 'true');
     }
 
     function showLoadingSequence(callback) {
       const overlay = document.getElementById('loadingOverlay');
       const img = document.getElementById('loadingImage');
-
-      if (!overlay) {
-        callback();
-        return;
-      }
 
       overlay.classList.remove('hidden');
       img.src = '/BUDU/assets/blackscreen.png';
@@ -118,64 +112,69 @@
           setTimeout(() => {
             overlay.classList.add('hidden');
             callback();
-          }, 800); // waktu fade out
-        }, 3000); // durasi splashscreen
-      }, 3000); // durasi blackscreen
+          }, 800);
+        }, 3000);
+      }, 3000);
     }
 
     function initMode() {
       setTimeout(() => {
-        const isStand = isInstalled();
-        console.log('initMode → standalone detected?', isStand);
+        const installed = isInstalled();
+        console.log('initMode: installed?', installed);
 
-        if (isStand) {
+        if (installed) {
           showLoadingSequence(() => {
             document.getElementById('preview').classList.add('hidden');
             document.getElementById('game').classList.remove('hidden');
-            
+
             if (screen.orientation && screen.orientation.lock) {
-              screen.orientation.lock('landscape').catch(err => console.log('Orientation lock error:', err));
+              screen.orientation.lock('landscape').catch(() => {});
             }
             if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+              document.documentElement.requestFullscreen().catch(() => {});
             }
           });
         } else {
           document.getElementById('preview').classList.remove('hidden');
           document.getElementById('game').classList.add('hidden');
-          document.getElementById('loadingOverlay')?.classList.add('hidden');
+          document.getElementById('loadingOverlay').classList.add('hidden');
         }
       }, 500);
     }
 
     async function triggerInstall() {
       if (!deferredPrompt) {
-        alert("Prompt install belum muncul. Coba reload beberapa kali atau cek DevTools.");
+        alert("Prompt install belum muncul. Reload beberapa kali atau cek koneksi.");
         return;
       }
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
+
       if (outcome === 'accepted') {
-        console.log('Install diterima');
-        setTimeout(() => location.reload(), 1000);
+        console.log('Install accepted');
+        markAsInstalled();  // set flag langsung
+        // Tidak reload lagi untuk hindari loop
       }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('installBtn')?.addEventListener('click', triggerInstall);
       initMode();
+
       window.addEventListener('appinstalled', () => {
-        console.log('Event appinstalled terpicu');
-        setTimeout(() => location.reload(), 800);
+        console.log('appinstalled fired');
+        markAsInstalled();
+        // Reload optional kalau perlu refresh UI, tapi sekarang di-comment dulu
+        // setTimeout(() => location.reload(), 800);
       });
     });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/BUDU/sw.js')
-          .then(reg => console.log('SW registered! Scope:', reg.scope))
-          .catch(err => console.error('SW registration gagal:', err));
+          .then(reg => console.log('SW registered'))
+          .catch(err => console.error('SW error:', err));
       });
     }
   </script>
