@@ -16,18 +16,48 @@
     body { 
       margin: 0; padding: 0; overflow: hidden; background: #000; 
       font-family: system-ui, -apple-system, sans-serif; 
+      height: 100vh; width: 100vw;
     }
     .hidden { display: none !important; }
-    #loadingOverlay, #preview, #game, #orientationBlock { 
+    #loadingOverlay, #preview, #garage, #orientationBlock { 
       position: fixed; inset: 0; z-index: 10; 
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      box-sizing: border-box;
     }
     #preview { 
       background: linear-gradient(to bottom, #0a0a0f, #000); 
       display: flex; align-items: center; justify-content: center; 
     }
-    #game { 
+    #garage { 
       background: #000; 
       display: flex; align-items: center; justify-content: center; 
+      position: relative; 
+    }
+    #garageBackground {
+      width: 100vw; height: 100vh;
+      object-fit: cover; object-position: center;
+      position: absolute; top: 0; left: 0;
+    }
+    #bubuCharacter {
+      position: absolute;
+      width: 35vw; height: 35vw; /* 1:1 ratio, sesuaikan ukuran */
+      max-width: 450px; max-height: 450px;
+      left: 55%; /* agak ke kanan dari tengah */
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+    }
+    #carImage {
+      position: absolute;
+      width: 35vw; height: 35vw; /* 1:1 ratio */
+      max-width: 450px; max-height: 450px;
+      left: 25%; /* sebelah kiri karakter */
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 4;
     }
     #loadingOverlay { 
       background: #000; z-index: 9999; 
@@ -35,16 +65,19 @@
     }
     #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
     #loadingImage, #watermarkImg { 
-      width: 100%; height: 100%; 
-      object-fit: contain; object-position: center; 
+      width: 100vw; height: 100vh; 
+      object-fit: cover; object-position: center; 
       position: absolute; top: 0; left: 0; 
     }
     #watermarkImg { 
       opacity: 0; 
       transition: opacity 1.2s ease-in-out; 
+      max-width: 70vw; max-height: 70vh; 
+      object-fit: contain; 
     }
     #loadingContent { 
-      position: absolute; bottom: 20px; right: 20px; 
+      position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); 
+      right: calc(20px + env(safe-area-inset-right)); 
       display: flex; align-items: center; gap: 12px; 
       color: #6b7280; font-size: 0.9rem; z-index: 20; 
     }
@@ -56,12 +89,6 @@
       animation: spin 1s linear infinite; 
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #passText { 
-      font-size: 2rem; 
-      color: #4b5563; 
-      letter-spacing: 0.2em; 
-      text-align: center; 
-    }
     #orientationBlock { 
       background: rgba(0,0,0,0.95); color: white; 
       display: flex; align-items: center; justify-content: center; 
@@ -73,9 +100,9 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- Overlay loading utama -->
+  <!-- Loading overlay -->
   <div id="loadingOverlay" class="flex items-center justify-center relative">
-    <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="" class="w-full h-full object-cover">
+    <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="">
     <img id="watermarkImg" src="/BUDU/assets/watermark.png" alt="Watermark">
     <div id="loadingContent" class="hidden">
       <div class="spinner"></div>
@@ -83,7 +110,7 @@
     </div>
   </div>
 
-  <!-- Blokir kalau bukan landscape -->
+  <!-- Blokir portrait -->
   <div id="orientationBlock" class="hidden flex">
     <div>
       <div class="rotate-icon mb-8">↻</div>
@@ -109,13 +136,20 @@
     </div>
   </div>
 
-  <!-- Halaman akhir: pass di tengah -->
-  <div id="game" class="hidden flex items-center justify-center">
-    <p id="passText">pass</p>
+  <!-- Halaman garasi utama -->
+  <div id="garage" class="hidden relative overflow-hidden">
+    <img id="garageBackground" src="/BUDU/assets/garage.png" alt="Garage Background">
+    <img id="bubuCharacter" src="/BUDU/assets/bubu.gif" alt="Bubu Character">
+    <img id="carImage" src="/BUDU/assets/car.png" alt="Car">
   </div>
+
+  <audio id="homeMusic" loop>
+    <source src="/BUDU/assets/homesong.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     const INSTALLED_FLAG = 'budu_installed';
+    const homeMusic = document.getElementById('homeMusic');
 
     if (localStorage.getItem(INSTALLED_FLAG) === 'true') {
       document.getElementById('preview').classList.add('hidden');
@@ -139,37 +173,34 @@
       const watermark = document.getElementById('watermarkImg');
       const loadingContent = document.getElementById('loadingContent');
 
-      // 1. Blackscreen 3 detik
       img.src = '/BUDU/assets/blackscreen.png';
       overlay.classList.remove('hidden');
 
       setTimeout(() => {
-        // 2. Watermark 4 detik (fade in-out)
         watermark.style.opacity = '1';
         setTimeout(() => {
           watermark.style.opacity = '0';
         }, 2500);
 
         setTimeout(() => {
-          // 3. Blackscreen lagi 4 detik
           watermark.style.opacity = '0';
           img.src = '/BUDU/assets/blackscreen.png';
 
           setTimeout(() => {
-            // 4. Loadscreen + loading indicator
             img.src = '/BUDU/assets/loadscreen.png';
             loadingContent.classList.remove('hidden');
 
-            // Random 8-15 detik
             const randomDuration = Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
 
             setTimeout(() => {
-              // Selesai → hilangkan overlay, tampilkan "pass" di tengah
               overlay.style.opacity = '0';
               setTimeout(() => {
                 overlay.classList.add('hidden');
                 loadingContent.classList.add('hidden');
-                document.getElementById('game').classList.remove('hidden');
+                document.getElementById('garage').classList.remove('hidden');
+                // Mainkan musik
+                homeMusic.volume = 0.4; // volume sedang
+                homeMusic.play().catch(() => console.log('Autoplay diblokir, user harus interact dulu'));
               }, 800);
             }, randomDuration);
           }, 4000);
@@ -196,11 +227,11 @@
       if (isInstalled()) {
         if (e.matches) {
           document.getElementById('orientationBlock').classList.add('hidden');
-          if (document.getElementById('game').classList.contains('hidden')) {
+          if (document.getElementById('garage').classList.contains('hidden')) {
             startLoadingSequence();
           }
         } else {
-          document.getElementById('game').classList.add('hidden');
+          document.getElementById('garage').classList.add('hidden');
           document.getElementById('orientationBlock').classList.remove('hidden');
         }
       }
