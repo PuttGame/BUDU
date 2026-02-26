@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BUDU</title>
   
-  <!-- PWA Tags -->
   <link rel="manifest" href="/BUDU/manifest.json">
   <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,44 +12,43 @@
   
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: system-ui, -apple-system, sans-serif; }
-    .preview { min-height: 100dvh; }
-    .game-mode { height: 100dvh; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin:0; padding:0; }
+    .hidden { display: none !important; }
+    .preview, .game-mode, #loadingOverlay { position: fixed; inset: 0; }
+    .preview { background: linear-gradient(to bottom, #0a0a0f, #000); }
+    .game-mode { background: #000; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box; }
     .logo { box-shadow: 0 0 60px -10px rgb(59 130 246); }
-    #loadingOverlay {
-      transition: opacity 0.8s ease;
-    }
-    #loadingOverlay.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+    #loadingOverlay { transition: opacity 0.6s ease; background: #000; z-index: 9999; }
+    #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
   </style>
 </head>
 <body class="bg-black text-white">
 
-  <!-- Loading overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black hidden">
+  <!-- Loading sequence -->
+  <div id="loadingOverlay" class="flex items-center justify-center hidden">
     <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="Loading" class="w-full h-full object-cover">
   </div>
 
-  <div id="preview" class="preview flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950 to-black">
-    <div class="text-center">
-      <img src="/BUDU/assets/logo.png" alt="BUDU Logo" 
-           class="logo w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover">
-      <h1 class="mt-10 text-7xl font-black tracking-widest">BUDU</h1>
-      <p class="mt-2 text-blue-400 text-xl">Game Seru • Installable</p>
-    </div>
+  <!-- Preview (install page) -->
+  <div id="preview">
+    <div class="flex flex-col items-center justify-center h-full">
+      <div class="text-center">
+        <img src="/BUDU/assets/logo.png" alt="BUDU Logo" class="logo w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover">
+        <h1 class="mt-10 text-7xl font-black tracking-widest">BUDU</h1>
+        <p class="mt-2 text-blue-400 text-xl">Game Seru • Installable</p>
+      </div>
 
-    <div class="fixed bottom-8 left-0 right-0 px-6">
-      <button id="installBtn"
-              class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-5 rounded-3xl text-2xl font-bold shadow-2xl shadow-blue-500/50 active:scale-95 transition">
-        INSTALL SEKARANG
-      </button>
-      <p class="text-center text-zinc-500 text-sm mt-4">Jadikan seperti aplikasi asli di HP kamu</p>
+      <div class="fixed bottom-8 left-0 right-0 px-6">
+        <button id="installBtn" class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-5 rounded-3xl text-2xl font-bold shadow-2xl shadow-blue-500/50 active:scale-95 transition">
+          INSTALL SEKARANG
+        </button>
+        <p class="text-center text-zinc-500 text-sm mt-4">Jadikan seperti aplikasi asli di HP kamu</p>
+      </div>
     </div>
   </div>
 
-  <div id="game" class="game-mode hidden flex flex-col bg-black items-center justify-center">
+  <!-- Game content -->
+  <div id="game" class="game-mode hidden flex flex-col items-center justify-center">
     <div class="text-center p-6">
       <h2 class="text-5xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
         BUDU GAME
@@ -69,32 +67,25 @@
     let deferredPrompt = null;
     const INSTALLED_FLAG = 'budu_installed';
 
+    // Hide preview secepat mungkin di load awal kalau sudah installed
+    if (localStorage.getItem(INSTALLED_FLAG) === 'true') {
+      document.getElementById('preview').classList.add('hidden');
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('beforeinstallprompt triggered');
       e.preventDefault();
       deferredPrompt = e;
     });
 
     function isInstalled() {
-      const isStandalone = 
+      const standalone = 
         window.matchMedia('(display-mode: standalone)').matches ||
         navigator.standalone === true ||
         window.navigator.standalone === true;
 
-      const alreadyInstalled = localStorage.getItem(INSTALLED_FLAG) === 'true';
+      const flagged = localStorage.getItem(INSTALLED_FLAG) === 'true';
 
-      const approx = 
-        (window.innerHeight / screen.height > 0.92) &&
-        window.outerWidth === 0 &&
-        !document.referrer.includes('http');
-
-      console.log('Detection:', { isStandalone, alreadyInstalled, approx });
-
-      return isStandalone || alreadyInstalled || approx;
-    }
-
-    function markAsInstalled() {
-      localStorage.setItem(INSTALLED_FLAG, 'true');
+      return standalone || flagged;
     }
 
     function showLoadingSequence(callback) {
@@ -106,55 +97,42 @@
 
       setTimeout(() => {
         img.src = '/BUDU/assets/splashscreen.png';
-
         setTimeout(() => {
           overlay.style.opacity = '0';
           setTimeout(() => {
             overlay.classList.add('hidden');
             callback();
-          }, 800);
+          }, 600);
         }, 3000);
       }, 3000);
     }
 
     function initMode() {
-      setTimeout(() => {
-        const installed = isInstalled();
-        console.log('initMode: installed?', installed);
+      const installed = isInstalled();
 
-        if (installed) {
-          showLoadingSequence(() => {
-            document.getElementById('preview').classList.add('hidden');
-            document.getElementById('game').classList.remove('hidden');
-
-            if (screen.orientation && screen.orientation.lock) {
-              screen.orientation.lock('landscape').catch(() => {});
-            }
-            if (!document.fullscreenElement) {
-              document.documentElement.requestFullscreen().catch(() => {});
-            }
-          });
-        } else {
-          document.getElementById('preview').classList.remove('hidden');
-          document.getElementById('game').classList.add('hidden');
-          document.getElementById('loadingOverlay').classList.add('hidden');
-        }
-      }, 500);
+      if (installed) {
+        // Langsung sembunyikan preview dari awal
+        document.getElementById('preview').classList.add('hidden');
+        showLoadingSequence(() => {
+          document.getElementById('game').classList.remove('hidden');
+          screen.orientation?.lock('landscape').catch(() => {});
+          document.documentElement.requestFullscreen().catch(() => {});
+        });
+      } else {
+        document.getElementById('preview').classList.remove('hidden');
+        document.getElementById('game').classList.add('hidden');
+        document.getElementById('loadingOverlay').classList.add('hidden');
+      }
     }
 
     async function triggerInstall() {
-      if (!deferredPrompt) {
-        alert("Prompt install belum muncul. Reload beberapa kali atau cek koneksi.");
-        return;
-      }
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      deferredPrompt = null;
-
-      if (outcome === 'accepted') {
-        console.log('Install accepted');
-        markAsInstalled();  // set flag langsung
-        // Tidak reload lagi untuk hindari loop
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          localStorage.setItem(INSTALLED_FLAG, 'true');
+        }
+        deferredPrompt = null;
       }
     }
 
@@ -163,18 +141,14 @@
       initMode();
 
       window.addEventListener('appinstalled', () => {
-        console.log('appinstalled fired');
-        markAsInstalled();
-        // Reload optional kalau perlu refresh UI, tapi sekarang di-comment dulu
-        // setTimeout(() => location.reload(), 800);
+        localStorage.setItem(INSTALLED_FLAG, 'true');
+        // Tidak reload supaya tidak flash preview lagi
       });
     });
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/BUDU/sw.js')
-          .then(reg => console.log('SW registered'))
-          .catch(err => console.error('SW error:', err));
+        navigator.serviceWorker.register('/BUDU/sw.js');
       });
     }
   </script>
