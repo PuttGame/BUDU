@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budu-v4';  // versi baru supaya cache lama dibersihkan otomatis
+const CACHE_NAME = 'budu-v5';  // naikkan versi lagi
 
 const BASE_PATH = '/BUDU/';
 const urlsToCache = [
@@ -12,14 +12,18 @@ const urlsToCache = [
   BASE_PATH + 'assets/icon-maskable-512.png',
   BASE_PATH + 'assets/blackscreen.png',
   BASE_PATH + 'assets/watermark.png',
-  BASE_PATH + 'assets/loadscreen.png'
+  BASE_PATH + 'assets/loadscreen.png',
+  BASE_PATH + 'assets/garage.png',
+  BASE_PATH + 'assets/bubu.gif',
+  BASE_PATH + 'assets/car.png',
+  BASE_PATH + 'assets/homesong.mp3'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(urlsToCache))
-      .then(() => self.skipWaiting())  // langsung aktifkan SW baru
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -29,7 +33,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       );
-    }).then(() => self.clients.claim())  // ambil kontrol client langsung
+    }).then(() => self.clients.claim())
   );
 });
 
