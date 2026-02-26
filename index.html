@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BUDU</title>
 
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
 
@@ -16,17 +17,9 @@ html, body {
     height: 100%;
     overflow: hidden;
     background: black;
-    font-family: sans-serif;
 }
 
-/* Container utama */
-#app {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-/* Background fullscreen */
+/* Screen full */
 .screen {
     position: absolute;
     width: 100%;
@@ -49,38 +42,41 @@ html, body {
 }
 
 @keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0.3; }
-    100% { opacity: 1; }
+    0% {opacity: 1;}
+    50% {opacity: 0.3;}
+    100% {opacity: 1;}
 }
 </style>
 </head>
+
 <body>
 
-<div id="app">
+<!-- Loading -->
+<img id="loadingScreen" class="screen" src="assets/background/loadscreen.png">
+<div id="loadingText">LOADING...</div>
 
-    <!-- Loading Screen -->
-    <img id="loadingScreen" class="screen" src="assets/background/loadscreen.png">
-    <div id="loadingText">LOADING...</div>
-
-    <!-- Garage Screen -->
-    <img id="garageScreen" class="screen" src="assets/background/garage.png" style="display:none;">
-
-</div>
+<!-- Garage -->
+<img id="garageScreen" class="screen" src="assets/background/garage.png" style="display:none;">
 
 <script>
 
-// Register Service Worker
+/* Register Service Worker */
 if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js");
+    window.addEventListener("load", function () {
+        navigator.serviceWorker.register("sw.js")
+        .then(() => console.log("SW registered"))
+        .catch(err => console.log("SW error:", err));
+    });
 }
 
-// Simulasi loading 3 detik
-setTimeout(() => {
-    document.getElementById("loadingScreen").style.display = "none";
-    document.getElementById("loadingText").style.display = "none";
-    document.getElementById("garageScreen").style.display = "block";
-}, 3000);
+/* Simulasi loading 3 detik */
+window.addEventListener("load", function() {
+    setTimeout(function() {
+        document.getElementById("loadingScreen").style.display = "none";
+        document.getElementById("loadingText").style.display = "none";
+        document.getElementById("garageScreen").style.display = "block";
+    }, 3000);
+});
 
 </script>
 
