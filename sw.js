@@ -1,22 +1,22 @@
-const CACHE_NAME = 'budu-v5';  // naikkan versi lagi
+const CACHE_NAME = 'budu-v7';  // naikkan versi
 
 const BASE_PATH = '/BUDU/';
 const urlsToCache = [
   BASE_PATH,
   BASE_PATH + 'index.html',
   BASE_PATH + 'manifest.json',
-  BASE_PATH + 'assets/logo.png',
-  BASE_PATH + 'assets/icon-192.png',
-  BASE_PATH + 'assets/icon-512.png',
-  BASE_PATH + 'assets/icon-maskable-192.png',
-  BASE_PATH + 'assets/icon-maskable-512.png',
-  BASE_PATH + 'assets/blackscreen.png',
-  BASE_PATH + 'assets/watermark.png',
-  BASE_PATH + 'assets/loadscreen.png',
-  BASE_PATH + 'assets/garage.png',
-  BASE_PATH + 'assets/bubu.gif',
-  BASE_PATH + 'assets/car.png',
-  BASE_PATH + 'assets/homesong.mp3'
+  BASE_PATH + 'assets/icon/logo.png',
+  BASE_PATH + 'assets/icon/icon-192.png',
+  BASE_PATH + 'assets/icon/icon-512.png',
+  BASE_PATH + 'assets/icon/icon-maskable-192.png',
+  BASE_PATH + 'assets/icon/icon-maskable-512.png',
+  BASE_PATH + 'assets/background/blackscreen.png',
+  BASE_PATH + 'assets/background/watermark.png',
+  BASE_PATH + 'assets/background/loadscreen.png',
+  BASE_PATH + 'assets/background/garage.png',
+  BASE_PATH + 'assets/karakter/bubu.gif',
+  BASE_PATH + 'assets/car/car.png',
+  BASE_PATH + 'assets/music/homesong.mp3'
 ];
 
 self.addEventListener('install', event => {
