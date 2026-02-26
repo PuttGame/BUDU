@@ -15,11 +15,23 @@
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
     .preview { min-height: 100dvh; }
-    .game-mode { height: 100dvh; overflow: hidden; }
+    .game-mode { height: 100dvh; overflow: hidden; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box; }
     .logo { box-shadow: 0 0 60px -10px rgb(59 130 246); }
+    #loadingOverlay {
+      transition: opacity 0.8s ease;
+    }
+    #loadingOverlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="bg-black text-white">
+
+  <!-- Overlay loading sequence -->
+  <div id="loadingOverlay" class="fixed inset-0 z-50 flex items-center justify-center bg-black">
+    <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="Loading" class="w-full h-full object-cover">
+  </div>
 
   <div id="preview" class="preview flex flex-col items-center justify-center bg-gradient-to-b from-zinc-950 to-black">
     <div class="text-center">
@@ -67,12 +79,11 @@
       const navStandalone = navigator.standalone === true;
       const winStandalone = window.navigator.standalone === true;
       
-      // Fallback visual kuat untuk Android standalone
       const approxStandalone = 
         (window.innerHeight / screen.height > 0.92) && 
         (window.innerWidth / screen.width > 0.92) &&
-        window.outerWidth === 0 &&  // sering 0 di standalone
-        !document.referrer.includes('http');  // bukan dari tab browser
+        window.outerWidth === 0 &&
+        !document.referrer.includes('http');
 
       console.log('Detection details:', {
         mediaStandalone,
@@ -87,32 +98,59 @@
       return mediaStandalone || navStandalone || winStandalone || approxStandalone;
     }
 
+    function showLoadingSequence(callback) {
+      const overlay = document.getElementById('loadingOverlay');
+      const img = document.getElementById('loadingImage');
+
+      if (!overlay) {
+        callback();
+        return;
+      }
+
+      overlay.classList.remove('hidden');
+      img.src = '/BUDU/assets/blackscreen.png';
+
+      setTimeout(() => {
+        img.src = '/BUDU/assets/splashscreen.png';
+
+        setTimeout(() => {
+          overlay.style.opacity = '0';
+          setTimeout(() => {
+            overlay.classList.add('hidden');
+            callback();
+          }, 800); // waktu fade out
+        }, 3000); // durasi splashscreen
+      }, 3000); // durasi blackscreen
+    }
+
     function initMode() {
       setTimeout(() => {
         const isStand = isInstalled();
         console.log('initMode → standalone detected?', isStand);
 
         if (isStand) {
-          document.getElementById('preview').classList.add('hidden');
-          document.getElementById('game').classList.remove('hidden');
-          
-          if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(err => console.log('Orientation lock error:', err));
-          }
-          
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
-          }
+          showLoadingSequence(() => {
+            document.getElementById('preview').classList.add('hidden');
+            document.getElementById('game').classList.remove('hidden');
+            
+            if (screen.orientation && screen.orientation.lock) {
+              screen.orientation.lock('landscape').catch(err => console.log('Orientation lock error:', err));
+            }
+            if (!document.fullscreenElement) {
+              document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+            }
+          });
         } else {
           document.getElementById('preview').classList.remove('hidden');
           document.getElementById('game').classList.add('hidden');
+          document.getElementById('loadingOverlay')?.classList.add('hidden');
         }
-      }, 500); // delay 500ms agar detection lebih akurat setelah load
+      }, 500);
     }
 
     async function triggerInstall() {
       if (!deferredPrompt) {
-        alert("Prompt install belum muncul. Coba reload 2-3 kali atau cek DevTools > Application > Manifest & Service Workers.");
+        alert("Prompt install belum muncul. Coba reload beberapa kali atau cek DevTools.");
         return;
       }
       deferredPrompt.prompt();
@@ -133,7 +171,6 @@
       });
     });
 
-    // Register Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/BUDU/sw.js')
