@@ -33,28 +33,29 @@
     }
     #garage { 
       background: #000; 
-      display: flex; align-items: center; justify-content: center; 
       position: relative; 
+      overflow: hidden;
     }
     #garageBackground {
       width: 100vw; height: 100vh;
       object-fit: cover; object-position: center;
       position: absolute; top: 0; left: 0;
+      z-index: 1;
     }
     #bubuCharacter {
       position: absolute;
-      width: 35vw; height: 35vw; /* 1:1 ratio, sesuaikan ukuran */
-      max-width: 450px; max-height: 450px;
-      left: 55%; /* agak ke kanan dari tengah */
+      width: 40vw; height: 40vw;
+      max-width: 500px; max-height: 500px;
+      left: 58%; /* tengah agak ke kanan */
       top: 50%;
       transform: translate(-50%, -50%);
       z-index: 5;
     }
     #carImage {
       position: absolute;
-      width: 35vw; height: 35vw; /* 1:1 ratio */
-      max-width: 450px; max-height: 450px;
-      left: 25%; /* sebelah kiri karakter */
+      width: 40vw; height: 40vw;
+      max-width: 500px; max-height: 500px;
+      left: 25%; /* sebelah kiri bubu */
       top: 50%;
       transform: translate(-50%, -50%);
       z-index: 4;
@@ -101,9 +102,9 @@
 <body class="bg-black text-white">
 
   <!-- Loading overlay -->
-  <div id="loadingOverlay" class="flex items-center justify-center relative">
-    <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="">
-    <img id="watermarkImg" src="/BUDU/assets/watermark.png" alt="Watermark">
+  <div id="loadingOverlay" class="relative">
+    <img id="loadingImage" src="/BUDU/assets/background/blackscreen.png" alt="">
+    <img id="watermarkImg" src="/BUDU/assets/background/watermark.png" alt="Watermark">
     <div id="loadingContent" class="hidden">
       <div class="spinner"></div>
       <span>Loading...</span>
@@ -123,7 +124,7 @@
   <div id="preview" class="hidden">
     <div class="flex flex-col items-center justify-center h-full">
       <div class="text-center">
-        <img src="/BUDU/assets/logo.png" alt="BUDU Logo" class="w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover shadow-2xl">
+        <img src="/BUDU/assets/icon/logo.png" alt="BUDU Logo" class="w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover shadow-2xl">
         <h1 class="mt-10 text-7xl font-black tracking-widest">BUDU</h1>
         <p class="mt-2 text-blue-400 text-xl">Game Seru • Installable</p>
       </div>
@@ -138,13 +139,14 @@
 
   <!-- Halaman garasi utama -->
   <div id="garage" class="hidden relative overflow-hidden">
-    <img id="garageBackground" src="/BUDU/assets/garage.png" alt="Garage Background">
-    <img id="bubuCharacter" src="/BUDU/assets/bubu.gif" alt="Bubu Character">
-    <img id="carImage" src="/BUDU/assets/car.png" alt="Car">
+    <img id="garageBackground" src="/BUDU/assets/background/garage.png" alt="Garage">
+    <img id="bubuCharacter" src="/BUDU/assets/karakter/bubu.gif" alt="Bubu">
+    <img id="carImage" src="/BUDU/assets/car/car.png" alt="Car">
   </div>
 
+  <!-- Musik latar -->
   <audio id="homeMusic" loop>
-    <source src="/BUDU/assets/homesong.mp3" type="audio/mpeg">
+    <source src="/BUDU/assets/music/homesong.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -173,21 +175,19 @@
       const watermark = document.getElementById('watermarkImg');
       const loadingContent = document.getElementById('loadingContent');
 
-      img.src = '/BUDU/assets/blackscreen.png';
+      img.src = '/BUDU/assets/background/blackscreen.png';
       overlay.classList.remove('hidden');
 
       setTimeout(() => {
         watermark.style.opacity = '1';
-        setTimeout(() => {
-          watermark.style.opacity = '0';
-        }, 2500);
+        setTimeout(() => watermark.style.opacity = '0', 2500);
 
         setTimeout(() => {
           watermark.style.opacity = '0';
-          img.src = '/BUDU/assets/blackscreen.png';
+          img.src = '/BUDU/assets/background/blackscreen.png';
 
           setTimeout(() => {
-            img.src = '/BUDU/assets/loadscreen.png';
+            img.src = '/BUDU/assets/background/loadscreen.png';
             loadingContent.classList.remove('hidden');
 
             const randomDuration = Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
@@ -198,9 +198,8 @@
                 overlay.classList.add('hidden');
                 loadingContent.classList.add('hidden');
                 document.getElementById('garage').classList.remove('hidden');
-                // Mainkan musik
-                homeMusic.volume = 0.4; // volume sedang
-                homeMusic.play().catch(() => console.log('Autoplay diblokir, user harus interact dulu'));
+                homeMusic.volume = 0.35;
+                homeMusic.play().catch(() => console.log('Autoplay diblokir'));
               }, 800);
             }, randomDuration);
           }, 4000);
@@ -211,7 +210,6 @@
     function initApp() {
       if (isInstalled()) {
         document.getElementById('preview').classList.add('hidden');
-
         if (isLandscape()) {
           startLoadingSequence();
         } else {
