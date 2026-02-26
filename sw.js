@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budu-v9';
+const CACHE_NAME = 'budu-v10';
 
 const BASE_PATH = '/BUDU/';
 const urlsToCache = [
