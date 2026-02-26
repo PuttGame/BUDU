@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>BUDU</title>
   
-  <!-- PWA Tags -->
   <link rel="manifest" href="/BUDU/manifest.json">
   <meta name="theme-color" content="#000000">
   <meta name="background-color" content="#000000">
@@ -15,82 +14,85 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body { 
+      margin: 0; padding: 0; overflow: hidden; background: #000; 
       font-family: system-ui, -apple-system, sans-serif; 
-      margin: 0; padding: 0; 
-      overflow: hidden; 
-      background: #000; 
     }
     .hidden { display: none !important; }
-    .preview, .game-mode, #loadingOverlay, #orientationBlock { 
+    #loadingOverlay, #preview, #game, #orientationBlock { 
       position: fixed; inset: 0; z-index: 10; 
     }
-    .preview { 
+    #preview { 
       background: linear-gradient(to bottom, #0a0a0f, #000); 
       display: flex; align-items: center; justify-content: center; 
     }
-    .game-mode { 
+    #game { 
       background: #000; 
       display: flex; align-items: center; justify-content: center; 
     }
     #loadingOverlay { 
-      transition: opacity 0.6s ease; 
-      background: #000; 
-      z-index: 9999; 
+      background: #000; z-index: 9999; 
+      transition: opacity 0.8s ease; 
     }
     #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
-    #orientationBlock { 
-      background: rgba(0,0,0,0.95); 
-      color: white; 
-      flex-direction: column; 
-      text-align: center; 
-      justify-content: center; 
+    #watermarkImg { 
+      opacity: 0; 
+      transition: opacity 1.2s ease-in-out; 
+      max-width: 80%; max-height: 80%; object-fit: contain; 
     }
+    #loadingContent { 
+      position: absolute; bottom: 20px; right: 20px; 
+      display: flex; align-items: center; gap: 12px; 
+      color: #6b7280; font-size: 0.9rem; 
+    }
+    .spinner {
+      width: 20px; height: 20px; 
+      border: 3px solid #4b5563; 
+      border-top: 3px solid #9ca3af; 
+      border-radius: 50%; 
+      animation: spin 1s linear infinite; 
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
     #passText { 
-      font-size: 1.2rem; 
-      color: #4b5563; 
-      font-weight: 400; 
-      letter-spacing: 0.1em; 
+      font-size: 1.5rem; color: #4b5563; letter-spacing: 0.15em; 
     }
-    .rotate-icon { 
-      font-size: 5rem; 
-      animation: rotate 2s linear infinite; 
+    #orientationBlock { 
+      background: rgba(0,0,0,0.95); color: white; 
+      display: flex; align-items: center; justify-content: center; 
+      flex-direction: column; text-align: center; 
     }
-    @keyframes rotate { 
-      0% { transform: rotate(0deg); } 
-      100% { transform: rotate(90deg); } 
-    }
-    /* Hilangkan highlight & border focus */
-    :focus, :focus-visible { outline: none !important; }
-    * { -webkit-tap-highlight-color: transparent !important; }
+    .rotate-icon { font-size: 6rem; animation: rotate 2s linear infinite; }
+    @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(90deg); } }
   </style>
 </head>
 <body class="bg-black text-white">
 
-  <!-- Loading sequence -->
-  <div id="loadingOverlay" class="flex items-center justify-center hidden">
-    <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="Loading" class="w-full h-full object-cover">
-  </div>
-
-  <!-- Blokir kalau bukan landscape -->
-  <div id="orientationBlock" class="flex hidden">
-    <div>
-      <div class="rotate-icon mb-6">↻</div>
-      <h2 class="text-3xl font-bold mb-4">Putar ke Landscape</h2>
-      <p class="text-xl text-zinc-300">Game hanya bisa dimainkan dalam mode landscape.</p>
-      <p class="text-sm text-zinc-500 mt-8">Putar HP-mu secara horizontal untuk mulai.</p>
+  <!-- Overlay utama untuk semua loading -->
+  <div id="loadingOverlay" class="flex items-center justify-center">
+    <img id="loadingImage" src="/BUDU/assets/blackscreen.png" alt="" class="w-full h-full object-cover">
+    <img id="watermarkImg" src="/BUDU/assets/watermark.png" alt="Watermark">
+    <div id="loadingContent" class="hidden">
+      <div class="spinner"></div>
+      <span>Loading...</span>
     </div>
   </div>
 
-  <!-- Preview (install page) -->
-  <div id="preview">
+  <!-- Blokir kalau bukan landscape -->
+  <div id="orientationBlock" class="hidden flex">
+    <div>
+      <div class="rotate-icon mb-8">↻</div>
+      <h2 class="text-3xl font-bold mb-4">Putar ke Landscape</h2>
+      <p class="text-xl text-zinc-300 px-6">Game hanya bisa dimainkan dalam mode landscape.</p>
+    </div>
+  </div>
+
+  <!-- Preview install (hanya muncul kalau belum install) -->
+  <div id="preview" class="hidden">
     <div class="flex flex-col items-center justify-center h-full">
       <div class="text-center">
-        <img src="/BUDU/assets/logo.png" alt="BUDU Logo" 
-             class="logo w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover">
+        <img src="/BUDU/assets/logo.png" alt="BUDU Logo" class="w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover shadow-2xl">
         <h1 class="mt-10 text-7xl font-black tracking-widest">BUDU</h1>
         <p class="mt-2 text-blue-400 text-xl">Game Seru • Installable</p>
       </div>
-
       <div class="fixed bottom-8 left-0 right-0 px-6">
         <button id="installBtn" class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-5 rounded-3xl text-2xl font-bold shadow-2xl shadow-blue-500/50 active:scale-95 transition">
           INSTALL SEKARANG
@@ -100,98 +102,97 @@
     </div>
   </div>
 
-  <!-- Game content minimal -->
-  <div id="game" class="game-mode hidden">
+  <!-- Halaman akhir minimal -->
+  <div id="game" class="hidden">
     <p id="passText">pass</p>
   </div>
 
   <script>
-    tailwind.config = { content: ["*"] }
-
-    let deferredPrompt = null;
     const INSTALLED_FLAG = 'budu_installed';
 
+    // Hide preview awal kalau sudah pernah install
     if (localStorage.getItem(INSTALLED_FLAG) === 'true') {
       document.getElementById('preview').classList.add('hidden');
     }
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
 
     function isInstalled() {
       const standalone = window.matchMedia('(display-mode: standalone)').matches ||
                          window.matchMedia('(display-mode: fullscreen)').matches ||
                          navigator.standalone === true ||
                          window.navigator.standalone === true;
-      const flagged = localStorage.getItem(INSTALLED_FLAG) === 'true';
-      return standalone || flagged;
+      return standalone || localStorage.getItem(INSTALLED_FLAG) === 'true';
     }
 
     function isLandscape() {
       return window.matchMedia('(orientation: landscape)').matches;
     }
 
-    function checkAndLockOrientation() {
-      if (isLandscape()) {
-        if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(() => {});
-        }
-        document.getElementById('orientationBlock').classList.add('hidden');
-        return true;
-      } else {
-        document.getElementById('orientationBlock').classList.remove('hidden');
-        return false;
-      }
-    }
-
-    function showLoadingSequence(callback) {
+    function startLoadingSequence() {
       const overlay = document.getElementById('loadingOverlay');
       const img = document.getElementById('loadingImage');
+      const watermark = document.getElementById('watermarkImg');
+      const loadingContent = document.getElementById('loadingContent');
 
-      overlay.classList.remove('hidden');
+      // 1. Blackscreen 3 detik
       img.src = '/BUDU/assets/blackscreen.png';
+      overlay.classList.remove('hidden');
 
       setTimeout(() => {
-        img.src = '/BUDU/assets/splashscreen.png';
+        // 2. Watermark 4 detik (fade in-out)
+        watermark.style.opacity = '1';
         setTimeout(() => {
-          overlay.style.opacity = '0';
+          watermark.style.opacity = '0';
+        }, 2500); // mulai fade out di 2.5 detik
+
+        setTimeout(() => {
+          // 3. Blackscreen lagi 4 detik
+          watermark.style.opacity = '0';
+          img.src = '/BUDU/assets/blackscreen.png';
+
           setTimeout(() => {
-            overlay.classList.add('hidden');
-            callback();
-          }, 600);
-        }, 3000);
+            // 4. Loadscreen tanpa animasi
+            img.src = '/BUDU/assets/loadscreen.png';
+            loadingContent.classList.remove('hidden');
+
+            // Random durasi loading 8-15 detik
+            const randomDuration = Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
+
+            setTimeout(() => {
+              // Selesai loading → hilangkan overlay & tampilkan "pass"
+              overlay.style.opacity = '0';
+              setTimeout(() => {
+                overlay.classList.add('hidden');
+                loadingContent.classList.add('hidden');
+                document.getElementById('game').classList.remove('hidden');
+              }, 800);
+            }, randomDuration);
+          }, 4000);
+        }, 4000);
       }, 3000);
     }
 
-    function initMode() {
-      const installed = isInstalled();
-
-      if (installed) {
+    function initApp() {
+      if (isInstalled()) {
         document.getElementById('preview').classList.add('hidden');
 
-        if (checkAndLockOrientation()) {
-          showLoadingSequence(() => {
-            document.getElementById('game').classList.remove('hidden');
-          });
+        if (isLandscape()) {
+          startLoadingSequence();
+        } else {
+          document.getElementById('orientationBlock').classList.remove('hidden');
         }
       } else {
         document.getElementById('preview').classList.remove('hidden');
-        document.getElementById('game').classList.add('hidden');
-        document.getElementById('loadingOverlay').classList.add('hidden');
         document.getElementById('orientationBlock').classList.add('hidden');
       }
     }
 
+    // Handle perubahan orientation
     window.matchMedia('(orientation: landscape)').addEventListener('change', (e) => {
       if (isInstalled()) {
         if (e.matches) {
-          checkAndLockOrientation();
+          document.getElementById('orientationBlock').classList.add('hidden');
           if (document.getElementById('game').classList.contains('hidden')) {
-            showLoadingSequence(() => {
-              document.getElementById('game').classList.remove('hidden');
-            });
+            startLoadingSequence();
           }
         } else {
           document.getElementById('game').classList.add('hidden');
@@ -200,7 +201,14 @@
       }
     });
 
-    async function triggerInstall() {
+    // Install button
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    document.getElementById('installBtn')?.addEventListener('click', async () => {
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
@@ -209,17 +217,16 @@
         }
         deferredPrompt = null;
       }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('installBtn')?.addEventListener('click', triggerInstall);
-      initMode();
-
-      window.addEventListener('appinstalled', () => {
-        localStorage.setItem(INSTALLED_FLAG, 'true');
-      });
     });
 
+    window.addEventListener('appinstalled', () => {
+      localStorage.setItem(INSTALLED_FLAG, 'true');
+    });
+
+    // Init
+    document.addEventListener('DOMContentLoaded', initApp);
+
+    // Service Worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/BUDU/sw.js');
@@ -227,4 +234,4 @@
     }
   </script>
 </body>
-</html>
+  </html>
