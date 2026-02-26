@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budu-v2';  // versi baru agar cache lama otomatis dibersihkan
+const CACHE_NAME = 'budu-v3';
 const BASE_PATH = '/BUDU/';
 const urlsToCache = [
   BASE_PATH,
@@ -6,7 +6,9 @@ const urlsToCache = [
   BASE_PATH + 'manifest.json',
   BASE_PATH + 'assets/logo.png',
   BASE_PATH + 'assets/icon-192.png',
-  BASE_PATH + 'assets/icon-512.png'
+  BASE_PATH + 'assets/icon-512.png',
+  BASE_PATH + 'assets/blackscreen.png',
+  BASE_PATH + 'assets/splashscreen.png'
 ];
 
 self.addEventListener('install', event => {
