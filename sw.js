@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budu-v7';  // naikkan versi
+const CACHE_NAME = 'budu-v9';
 
 const BASE_PATH = '/BUDU/';
 const urlsToCache = [
