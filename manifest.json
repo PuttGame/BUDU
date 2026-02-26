@@ -3,7 +3,7 @@
   "short_name": "BUDU",
   "description": "Game BUDU - Mainkan sekarang!",
   "start_url": "/BUDU/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "landscape",
   "theme_color": "#1a1a2e",
   "background_color": "#0f0f1e",
