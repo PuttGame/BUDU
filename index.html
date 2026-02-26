@@ -46,8 +46,7 @@
       position: absolute;
       width: 40vw; height: 40vw;
       max-width: 500px; max-height: 500px;
-      left: 58%; /* tengah agak ke kanan */
-      top: 50%;
+      left: 58%; top: 50%;
       transform: translate(-50%, -50%);
       z-index: 5;
     }
@@ -55,8 +54,7 @@
       position: absolute;
       width: 40vw; height: 40vw;
       max-width: 500px; max-height: 500px;
-      left: 25%; /* sebelah kiri bubu */
-      top: 50%;
+      left: 25%; top: 50%;
       transform: translate(-50%, -50%);
       z-index: 4;
     }
@@ -101,7 +99,6 @@
 </head>
 <body class="bg-black text-white">
 
-  <!-- Loading overlay -->
   <div id="loadingOverlay" class="relative">
     <img id="loadingImage" src="/BUDU/assets/background/blackscreen.png" alt="">
     <img id="watermarkImg" src="/BUDU/assets/background/watermark.png" alt="Watermark">
@@ -111,7 +108,6 @@
     </div>
   </div>
 
-  <!-- Blokir portrait -->
   <div id="orientationBlock" class="hidden flex">
     <div>
       <div class="rotate-icon mb-8">↻</div>
@@ -120,7 +116,6 @@
     </div>
   </div>
 
-  <!-- Preview install -->
   <div id="preview" class="hidden">
     <div class="flex flex-col items-center justify-center h-full">
       <div class="text-center">
@@ -137,14 +132,12 @@
     </div>
   </div>
 
-  <!-- Halaman garasi utama -->
   <div id="garage" class="hidden relative overflow-hidden">
     <img id="garageBackground" src="/BUDU/assets/background/garage.png" alt="Garage">
     <img id="bubuCharacter" src="/BUDU/assets/karakter/bubu.gif" alt="Bubu">
     <img id="carImage" src="/BUDU/assets/car/car.png" alt="Car">
   </div>
 
-  <!-- Musik latar (volume dinaikkan) -->
   <audio id="homeMusic" loop>
     <source src="/BUDU/assets/music/homesong.mp3" type="audio/mpeg">
   </audio>
@@ -170,6 +163,7 @@
     }
 
     function startLoadingSequence() {
+      console.log('Mulai loading sequence');
       const overlay = document.getElementById('loadingOverlay');
       const img = document.getElementById('loadingImage');
       const watermark = document.getElementById('watermarkImg');
@@ -191,6 +185,7 @@
             loadingContent.classList.remove('hidden');
 
             const randomDuration = Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
+            console.log('Durasi loading random:', randomDuration / 1000, 'detik');
 
             setTimeout(() => {
               overlay.style.opacity = '0';
@@ -198,9 +193,9 @@
                 overlay.classList.add('hidden');
                 loadingContent.classList.add('hidden');
                 document.getElementById('garage').classList.remove('hidden');
-                // Volume dinaikkan ke 0.8
+                console.log('Garasi muncul - background, bubu, car seharusnya load');
                 homeMusic.volume = 0.8;
-                homeMusic.play().catch(err => console.log('Autoplay diblokir:', err));
+                homeMusic.play().catch(err => console.log('Musik error:', err));
               }, 800);
             }, randomDuration);
           }, 4000);
