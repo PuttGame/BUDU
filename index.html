@@ -1,273 +1,88 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>BUDU</title>
-  
-  <link rel="manifest" href="/BUDU/manifest.json">
-  <meta name="theme-color" content="#000000">
-  <meta name="background-color" content="#000000">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { 
-      margin: 0; padding: 0; overflow: hidden; background: #000; 
-      font-family: system-ui, -apple-system, sans-serif; 
-      height: 100vh; width: 100vw;
-    }
-    .hidden { display: none !important; }
-    #loadingOverlay, #preview, #garage, #orientationBlock { 
-      position: fixed; inset: 0; z-index: 10; 
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-      padding-left: env(safe-area-inset-left);
-      padding-right: env(safe-area-inset-right);
-      box-sizing: border-box;
-    }
-    #preview { 
-      background: linear-gradient(to bottom, #0a0a0f, #000); 
-      display: flex; align-items: center; justify-content: center; 
-    }
-    #garage { 
-      background: #000; 
-      position: relative; 
-      overflow: hidden;
-    }
-    #garageBackground {
-      width: 100vw; height: 100vh;
-      object-fit: cover; object-position: center;
-      position: absolute; top: 0; left: 0;
-      z-index: 1;
-    }
-    #bubuCharacter {
-      position: absolute;
-      width: 40vw; height: 40vw;
-      max-width: 500px; max-height: 500px;
-      left: 58%; top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-    }
-    #carImage {
-      position: absolute;
-      width: 40vw; height: 40vw;
-      max-width: 500px; max-height: 500px;
-      left: 25%; top: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 4;
-    }
-    #loadingOverlay { 
-      background: #000; z-index: 9999; 
-      transition: opacity 0.8s ease; 
-    }
-    #loadingOverlay.hidden { opacity: 0; pointer-events: none; }
-    #loadingImage, #watermarkImg { 
-      width: 100vw; height: 100vh; 
-      object-fit: cover; object-position: center; 
-      position: absolute; top: 0; left: 0; 
-    }
-    #watermarkImg { 
-      opacity: 0; 
-      transition: opacity 1.2s ease-in-out; 
-    }
-    #loadingContent { 
-      position: absolute; bottom: calc(20px + env(safe-area-inset-bottom)); 
-      right: calc(20px + env(safe-area-inset-right)); 
-      display: flex; align-items: center; gap: 12px; 
-      color: #6b7280; font-size: 0.9rem; z-index: 20; 
-    }
-    .spinner {
-      width: 20px; height: 20px; 
-      border: 3px solid #4b5563; 
-      border-top: 3px solid #9ca3af; 
-      border-radius: 50%; 
-      animation: spin 1s linear infinite; 
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    #orientationBlock { 
-      background: rgba(0,0,0,0.95); color: white; 
-      display: flex; align-items: center; justify-content: center; 
-      flex-direction: column; text-align: center; 
-    }
-    .rotate-icon { font-size: 6rem; animation: rotate 2s linear infinite; }
-    @keyframes rotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(90deg); } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>BUDU</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: black;
+    font-family: sans-serif;
+}
+
+/* Container utama */
+#app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Background fullscreen */
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+}
+
+/* Loading text */
+#loadingText {
+    position: absolute;
+    bottom: 40px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 18px;
+    letter-spacing: 2px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.3; }
+    100% { opacity: 1; }
+}
+</style>
 </head>
-<body class="bg-black text-white">
+<body>
 
-  <!-- Loading overlay -->
-  <div id="loadingOverlay" class="relative">
-    <img id="loadingImage" src="/BUDU/assets/background/blackscreen.png" alt="">
-    <img id="watermarkImg" src="/BUDU/assets/background/watermark.png" alt="Watermark">
-    <div id="loadingContent" class="hidden">
-      <div class="spinner"></div>
-      <span>Loading...</span>
-    </div>
-  </div>
+<div id="app">
 
-  <!-- Blokir portrait -->
-  <div id="orientationBlock" class="hidden flex">
-    <div>
-      <div class="rotate-icon mb-8">↻</div>
-      <h2 class="text-3xl font-bold mb-4">Putar ke Landscape</h2>
-      <p class="text-xl text-zinc-300 px-6">Game hanya bisa dimainkan dalam mode landscape.</p>
-    </div>
-  </div>
+    <!-- Loading Screen -->
+    <img id="loadingScreen" class="screen" src="assets/background/loadscreen.png">
+    <div id="loadingText">LOADING...</div>
 
-  <!-- Preview install -->
-  <div id="preview" class="hidden">
-    <div class="flex flex-col items-center justify-center h-full">
-      <div class="text-center">
-        <img src="/BUDU/assets/icon/logo.png" alt="BUDU Logo" class="w-52 h-52 mx-auto rounded-3xl border-4 border-blue-500/30 object-cover shadow-2xl">
-        <h1 class="mt-10 text-7xl font-black tracking-widest">BUDU</h1>
-        <p class="mt-2 text-blue-400 text-xl">Game Seru • Installable</p>
-      </div>
-      <div class="fixed bottom-8 left-0 right-0 px-6">
-        <button id="installBtn" class="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 py-5 rounded-3xl text-2xl font-bold shadow-2xl shadow-blue-500/50 active:scale-95 transition">
-          INSTALL SEKARANG
-        </button>
-        <p class="text-center text-zinc-500 text-sm mt-4">Jadikan seperti aplikasi asli di HP kamu</p>
-      </div>
-    </div>
-  </div>
+    <!-- Garage Screen -->
+    <img id="garageScreen" class="screen" src="assets/background/garage.png" style="display:none;">
 
-  <!-- Halaman garasi utama -->
-  <div id="garage" class="hidden relative overflow-hidden">
-    <img id="garageBackground" src="/BUDU/assets/background/garage.png" alt="Garage">
-    <img id="bubuCharacter" src="/BUDU/assets/karakter/bubu.gif" alt="Bubu">
-    <img id="carImage" src="/BUDU/assets/car/car.png" alt="Car">
-  </div>
+</div>
 
-  <!-- Musik latar -->
-  <audio id="homeMusic" loop>
-    <source src="/BUDU/assets/music/homesong.mp3" type="audio/mpeg">
-  </audio>
+<script>
 
-  <script>
-    const INSTALLED_FLAG = 'budu_installed';
-    const homeMusic = document.getElementById('homeMusic');
+// Register Service Worker
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js");
+}
 
-    if (localStorage.getItem(INSTALLED_FLAG) === 'true') {
-      document.getElementById('preview').classList.add('hidden');
-    }
+// Simulasi loading 3 detik
+setTimeout(() => {
+    document.getElementById("loadingScreen").style.display = "none";
+    document.getElementById("loadingText").style.display = "none";
+    document.getElementById("garageScreen").style.display = "block";
+}, 3000);
 
-    function isInstalled() {
-      const standalone = window.matchMedia('(display-mode: standalone)').matches ||
-                         window.matchMedia('(display-mode: fullscreen)').matches ||
-                         navigator.standalone === true ||
-                         window.navigator.standalone === true;
-      return standalone || localStorage.getItem(INSTALLED_FLAG) === 'true';
-    }
+</script>
 
-    function isLandscape() {
-      return window.matchMedia('(orientation: landscape)').matches;
-    }
-
-    function startLoadingSequence() {
-      console.log('Mulai loading sequence');
-      const overlay = document.getElementById('loadingOverlay');
-      const img = document.getElementById('loadingImage');
-      const watermark = document.getElementById('watermarkImg');
-      const loadingContent = document.getElementById('loadingContent');
-
-      img.src = '/BUDU/assets/background/blackscreen.png';
-      overlay.classList.remove('hidden');
-
-      setTimeout(() => {
-        watermark.style.opacity = '1';
-        setTimeout(() => watermark.style.opacity = '0', 2500);
-
-        setTimeout(() => {
-          watermark.style.opacity = '0';
-          img.src = '/BUDU/assets/background/blackscreen.png';
-
-          setTimeout(() => {
-            img.src = '/BUDU/assets/background/loadscreen.png';
-            loadingContent.classList.remove('hidden');
-
-            const randomDuration = Math.floor(Math.random() * (15000 - 8000 + 1)) + 8000;
-            console.log('Durasi loading random:', randomDuration / 1000, 'detik');
-
-            setTimeout(() => {
-              // Loading selesai → jeda hitam 2 detik
-              img.src = '/BUDU/assets/background/blackscreen.png';
-              loadingContent.classList.add('hidden');
-
-              setTimeout(() => {
-                // Muncul garasi + play musik
-                overlay.style.opacity = '0';
-                setTimeout(() => {
-                  overlay.classList.add('hidden');
-                  document.getElementById('garage').classList.remove('hidden');
-                  console.log('Garasi muncul dengan background full');
-                  homeMusic.volume = 0.8;
-                  homeMusic.play().catch(err => console.log('Musik autoplay error:', err));
-                }, 800);
-              }, 2000); // jeda layar hitam 2 detik
-            }, randomDuration);
-          }, 4000);
-        }, 4000);
-      }, 3000);
-    }
-
-    function initApp() {
-      if (isInstalled()) {
-        document.getElementById('preview').classList.add('hidden');
-        if (isLandscape()) {
-          startLoadingSequence();
-        } else {
-          document.getElementById('orientationBlock').classList.remove('hidden');
-        }
-      } else {
-        document.getElementById('preview').classList.remove('hidden');
-        document.getElementById('orientationBlock').classList.add('hidden');
-      }
-    }
-
-    window.matchMedia('(orientation: landscape)').addEventListener('change', (e) => {
-      if (isInstalled()) {
-        if (e.matches) {
-          document.getElementById('orientationBlock').classList.add('hidden');
-          if (document.getElementById('garage').classList.contains('hidden')) {
-            startLoadingSequence();
-          }
-        } else {
-          document.getElementById('garage').classList.add('hidden');
-          document.getElementById('orientationBlock').classList.remove('hidden');
-        }
-      }
-    });
-
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
-
-    document.getElementById('installBtn')?.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          localStorage.setItem(INSTALLED_FLAG, 'true');
-        }
-        deferredPrompt = null;
-      }
-    });
-
-    window.addEventListener('appinstalled', () => {
-      localStorage.setItem(INSTALLED_FLAG, 'true');
-    });
-
-    document.addEventListener('DOMContentLoaded', initApp);
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/BUDU/sw.js');
-      });
-    }
-  </script>
 </body>
 </html>
