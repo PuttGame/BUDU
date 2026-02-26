@@ -144,7 +144,7 @@
     <img id="carImage" src="/BUDU/assets/car/car.png" alt="Car">
   </div>
 
-  <!-- Musik latar -->
+  <!-- Musik latar (volume dinaikkan) -->
   <audio id="homeMusic" loop>
     <source src="/BUDU/assets/music/homesong.mp3" type="audio/mpeg">
   </audio>
@@ -198,8 +198,9 @@
                 overlay.classList.add('hidden');
                 loadingContent.classList.add('hidden');
                 document.getElementById('garage').classList.remove('hidden');
-                homeMusic.volume = 0.35;
-                homeMusic.play().catch(() => console.log('Autoplay diblokir'));
+                // Volume dinaikkan ke 0.8
+                homeMusic.volume = 0.8;
+                homeMusic.play().catch(err => console.log('Autoplay diblokir:', err));
               }, 800);
             }, randomDuration);
           }, 4000);
