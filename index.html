@@ -2,12 +2,8 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BUDU</title>
-
-<!-- PWA -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#000000">
 
 <style>
 html, body {
@@ -15,100 +11,119 @@ html, body {
     padding: 0;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     background: black;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
 }
 
-/* Semua layar */
-.screen {
+/* BACKGROUND */
+.bg {
     position: absolute;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    top: 0;
-    left: 0;
 }
 
-/* Loading kecil kanan bawah */
-#loadingContainer {
+/* UI COMMON */
+.ui {
     position: absolute;
-    bottom: 15px;
-    right: 15px;
-    display: none;
-    align-items: center;
-    color: white;
-    font-size: 12px;
-    font-family: sans-serif;
+    z-index: 10;
 }
 
-.spinner {
-    width: 12px;
-    height: 12px;
-    border: 2px solid white;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    margin-right: 6px;
-    animation: spin 0.8s linear infinite;
+/* 1:1 ICONS */
+.square {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
 }
 
-@keyframes spin {
-    100% { transform: rotate(360deg); }
+/* 16:9 MEDIA */
+.ratio169 {
+    width: 320px;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: black;
 }
 
-/* Bubu di tengah dan diperbesar */
+/* POSITIONS */
+#avatar { top: 20px; left: 20px; }
+#yellow { top: 20px; right: 120px; }
+#settings { top: 20px; right: 20px; }
+
+#green { top: 120px; left: 20px; }
+#purple { top: 200px; left: 20px; }
+#red { top: 280px; left: 20px; }
+
+#startGif { bottom: 20px; right: 20px; }
+#adsVideo { top: 120px; left: 120px; }
+
+/* CHARACTER & CAR */
 #bubu {
     position: absolute;
-    height: 55%;
-    top: 50%;
+    bottom: 0;
     left: 50%;
-    transform: translate(-50%, -50%);
-    display: none;
+    transform: translateX(-50%);
+    height: 60%;
+    z-index: 5;
 }
 
-/* Mobil di kiri dan diperbesar */
 #car {
     position: absolute;
-    height: 45%;
-    top: 60%;
-    left: 35%;
-    transform: translate(-50%, -50%);
-    display: none;
+    bottom: 0;
+    left: 30%;
+    height: 30%;
+    z-index: 4;
 }
 </style>
 </head>
 
 <body>
 
-<!-- Tahap layar -->
-<div id="black1" class="screen" style="background:black;"></div>
-<img id="watermark" class="screen" src="assets/background/watermark.png" style="display:none;">
-<div id="black2" class="screen" style="background:black; display:none;"></div>
-<img id="loadscreen" class="screen" src="assets/background/loadscreen.png" style="display:none;">
-<img id="garage" class="screen" src="assets/background/garage.png" style="display:none;">
+<!-- EXISTING BACKGROUNDS -->
+<img src="assets/background/blackscreen.png" id="black1" class="bg">
+<img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none;">
+<img src="assets/background/garage.png" id="garage" class="bg" style="display:none;">
 
-<!-- Karakter -->
-<img id="bubu" src="assets/karakter/bubu.gif">
-<img id="car" src="assets/car/car.png">
+<!-- EXISTING CHARACTER -->
+<img src="assets/character/bubu.gif" id="bubu" style="display:none;">
+<img src="assets/car/car.png" id="car" style="display:none;">
 
-<!-- Loading kecil -->
-<div id="loadingContainer">
-    <div class="spinner"></div>
-    <div>loading</div>
-</div>
+<!-- 🔵 AVATAR 1:1 -->
+<img src="assets/ui/avatar.png" id="avatar" class="ui square">
 
-<!-- Musik -->
-<audio id="homesong" src="assets/music/homesong.mp3" loop></audio>
+<!-- 🟡 a.png -->
+<img src="assets/ui/a.png" id="yellow" class="ui square">
+
+<!-- ⚪ SETTINGS -->
+<img src="assets/ui/settings.png" id="settings" class="ui square">
+
+<!-- 🟢 2.png -->
+<img src="assets/ui/2.png" id="green" class="ui square">
+
+<!-- 🟣 3.png -->
+<img src="assets/ui/3.png" id="purple" class="ui square">
+
+<!-- 🔴 4.png -->
+<img src="assets/ui/4.png" id="red" class="ui square">
+
+<!-- 🔷 START GIF 16:9 -->
+<img src="assets/media/start.gif" id="startGif" class="ui ratio169">
+
+<!-- 🌸 ADS VIDEO 16:9 -->
+<video id="adsVideo" class="ui ratio169" autoplay muted loop>
+    <source src="assets/media/ads.mp4" type="video/mp4">
+</video>
+
+<!-- AUDIO -->
+<audio id="bgm" src="assets/music/homesong.mp3" loop></audio>
 
 <script>
-
-/* SERVICE WORKER */
-if ("serviceWorker" in navigator) {
-    window.addEventListener("load", function () {
-        navigator.serviceWorker.register("sw.js");
-    });
-}
-
-/* Timeline */
+const black1 = document.getElementById("black1");
+const watermark = document.getElementById("watermark");
+const garage = document.getElementById("garage");
+const bubu = document.getElementById("bubu");
+const car = document.getElementById("car");
+const bgm = document.getElementById("bgm");
 
 setTimeout(() => {
     black1.style.display = "none";
@@ -117,35 +132,20 @@ setTimeout(() => {
 
 setTimeout(() => {
     watermark.style.display = "none";
-    black2.style.display = "block";
+    black1.style.display = "block";
 }, 6000);
 
 setTimeout(() => {
-    black2.style.display = "none";
-    loadscreen.style.display = "block";
-}, 9000);
-
-setTimeout(() => {
-    loadingContainer.style.display = "flex";
-}, 13000);
-
-setTimeout(() => {
-    loadscreen.style.display = "none";
-    loadingContainer.style.display = "none";
-
+    black1.style.display = "none";
     garage.style.display = "block";
     bubu.style.display = "block";
     car.style.display = "block";
+}, 13000);
 
-    const music = document.getElementById("homesong");
-    music.play().catch(() => {
-        document.body.addEventListener("click", () => {
-            music.play();
-        }, { once: true });
-    });
-
-}, 21000);
-
+// autoplay unlock
+document.body.addEventListener("click", () => {
+    bgm.play();
+}, { once: true });
 </script>
 
 </body>
