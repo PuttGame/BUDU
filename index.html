@@ -2,14 +2,19 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,height=device-height,
-      initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport"
+content="width=device-width,height=device-height,
+initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
 <title>BUDU</title>
+
+<!-- PWA WAJIB -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 <style>
 html,body{
@@ -21,7 +26,7 @@ html,body{
   background:black;
 }
 
-/* ===== SCREEN & GAME ===== */
+/* ===== VIEWPORT ===== */
 #screen{
   position:fixed;
   inset:0;
@@ -30,13 +35,14 @@ html,body{
   align-items:center;
 }
 
+/* ===== GAME WORLD ===== */
 #game{
   position:relative;
   width:2400px;
   height:1080px;
   background:black;
+  transform-origin:center center;
   overflow:hidden;
-  transform-origin:center;
 }
 
 /* ===== BACKGROUND ===== */
@@ -54,21 +60,20 @@ html,body{
   position:absolute;
   bottom:90px;
   left:820px;
-  width:300px;      /* DIKECILKAN LAGI */
+  width:300px;
   z-index:4;
   display:none;
 }
-
 #bubu{
   position:absolute;
   bottom:90px;
   left:1130px;
-  width:260px;      /* DIKECILKAN LAGI */
+  width:260px;
   z-index:5;
   display:none;
 }
 
-/* ===== UI GROUP KIRI (AVATAR + ADS) ===== */
+/* ===== UI LEFT (AVATAR + ADS) ===== */
 #uiLeft{
   position:absolute;
   top:50px;
@@ -76,52 +81,42 @@ html,body{
   z-index:10;
   display:none;
 }
-
-/* 1:1 KECIL */
 .ui-11{
   width:72px;
   height:72px;
   display:block;
   margin-bottom:14px;
 }
-
-/* 16:9 KECIL */
 .ui-169{
   width:360px;
   aspect-ratio:16/9;
   display:block;
-  margin-top:12px;
 }
 
 /* ===== UI LAIN ===== */
-#uiA{top:50px;right:160px;}
-#uiSettings{top:50px;right:50px;}
-
-#ui2{top:170px;left:50px;}
-#ui3{top:270px;left:50px;}
-#ui4{top:370px;left:50px;}
-
-#uiA,#uiSettings,#ui2,#ui3,#ui4{
+.ui-btn{
   position:absolute;
   width:72px;
   height:72px;
   z-index:10;
   display:none;
 }
+#uiA{top:50px;right:160px;}
+#uiSettings{top:50px;right:50px;}
+#ui2{top:170px;left:50px;}
+#ui3{top:270px;left:50px;}
+#ui4{top:370px;left:50px;}
 
 /* START */
 #uiStart{
   position:absolute;
   right:70px;
   bottom:70px;
-  width:420px;     /* DIKECILKAN */
+  width:420px;
   aspect-ratio:16/9;
   z-index:10;
   display:none;
 }
-
-/* ===== LOADING ===== */
-#loadscreen{z-index:2;display:none;}
 </style>
 </head>
 
@@ -131,16 +126,15 @@ html,body{
 <div id="game">
 
 <!-- BACKGROUND -->
-<img src="assets/background/blackscreen.png" id="black1" class="bg">
-<img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none">
-<img src="assets/background/loadscreen.png" id="loadscreen" class="bg">
-<img src="assets/background/garage.png" id="garage" class="bg" style="display:none">
+<img src="assets/background/blackscreen.png" class="bg" id="black">
+<img src="assets/background/loadscreen.png" class="bg" id="load" style="display:none">
+<img src="assets/background/garage.png" class="bg" id="garage" style="display:none">
 
 <!-- MOBIL & KARAKTER -->
 <img src="assets/car/car.png" id="car">
 <img src="assets/character/bubu.gif" id="bubu">
 
-<!-- UI KIRI (AVATAR + ADS — FIXED) -->
+<!-- UI LEFT -->
 <div id="uiLeft">
   <img src="assets/ui/avatar.png" class="ui-11">
   <video class="ui-169" autoplay muted loop playsinline>
@@ -148,24 +142,23 @@ html,body{
   </video>
 </div>
 
-<!-- UI LAIN -->
-<img src="assets/ui/a.png" id="uiA">
-<img src="assets/ui/settings.png" id="uiSettings">
-<img src="assets/ui/2.png" id="ui2">
-<img src="assets/ui/3.png" id="ui3">
-<img src="assets/ui/4.png" id="ui4">
+<!-- UI BUTTON -->
+<img src="assets/ui/a.png" class="ui-btn" id="uiA">
+<img src="assets/ui/settings.png" class="ui-btn" id="uiSettings">
+<img src="assets/ui/2.png" class="ui-btn" id="ui2">
+<img src="assets/ui/3.png" class="ui-btn" id="ui3">
+<img src="assets/ui/4.png" class="ui-btn" id="ui4">
 
 <!-- START -->
 <img src="assets/media/start.gif" id="uiStart">
 
-<!-- AUDIO -->
 <audio id="bgm" src="assets/music/homesong.mp3" loop></audio>
 
 </div>
 </div>
 
 <script>
-/* ===== SCALE 2400x1080 ===== */
+/* SCALE FIX */
 function scaleGame(){
   const g=document.getElementById('game');
   const s=Math.min(
@@ -177,29 +170,13 @@ function scaleGame(){
 window.addEventListener('load',scaleGame);
 window.addEventListener('resize',scaleGame);
 
-/* ===== FLOW (TIDAK DIUBAH) ===== */
+/* FLOW */
+setTimeout(()=>{ black.style.display="none"; load.style.display="block"; },3000);
 setTimeout(()=>{
-  black1.style.display="none";
-  watermark.style.display="block";
-},2000);
-
-setTimeout(()=>{
-  watermark.style.display="none";
-  black1.style.display="block";
-},6000);
-
-setTimeout(()=>{
-  black1.style.display="none";
-  loadscreen.style.display="block";
-},9000);
-
-setTimeout(()=>{
-  loadscreen.style.display="none";
+  load.style.display="none";
   garage.style.display="block";
-
   car.style.display="block";
   bubu.style.display="block";
-
   uiLeft.style.display="block";
   uiA.style.display="block";
   uiSettings.style.display="block";
@@ -207,9 +184,13 @@ setTimeout(()=>{
   ui3.style.display="block";
   ui4.style.display="block";
   uiStart.style.display="block";
-
   bgm.play().catch(()=>{});
-},16000);
+},8000);
+
+/* REGISTER SERVICE WORKER (INI KUNCI INSTALL) */
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('service-worker.js');
+}
 </script>
 
 </body>
