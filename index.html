@@ -3,115 +3,125 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
-      content="width=device-width, height=device-height,
-      initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+      content="width=device-width,height=device-height,
+      initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
 <title>BUDU</title>
 
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  background: black;
-  touch-action: none;
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:black;
 }
 
-/* ===== SCREEN & GAME (MOBILE ONLY) ===== */
-#screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ===== SCREEN & GAME ===== */
+#screen{
+  position:fixed;
+  inset:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
-#game {
-  position: relative;
-  width: 2400px;
-  height: 1080px;
-  background: black;
-  transform-origin: center center;
-  overflow: hidden;
+#game{
+  position:relative;
+  width:2400px;
+  height:1080px;
+  background:black;
+  overflow:hidden;
+  transform-origin:center;
 }
 
 /* ===== BACKGROUND ===== */
-.bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  z-index: 1;
+.bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:1;
 }
 
-/* ===== CHARACTER & CAR ===== */
-#car {
-  position: absolute;
-  bottom: 100px;
-  left: 820px;
-  width: 360px;      /* DIKECILKAN */
-  z-index: 4;
-  display: none;
+/* ===== MOBIL & BUBU ===== */
+#car{
+  position:absolute;
+  bottom:90px;
+  left:820px;
+  width:300px;      /* DIKECILKAN LAGI */
+  z-index:4;
+  display:none;
 }
 
-#bubu {
-  position: absolute;
-  bottom: 100px;
-  left: 1200px;
-  width: 300px;      /* DIKECILKAN */
-  z-index: 5;
-  display: none;
+#bubu{
+  position:absolute;
+  bottom:90px;
+  left:1130px;
+  width:260px;      /* DIKECILKAN LAGI */
+  z-index:5;
+  display:none;
 }
 
-/* ===== UI 1:1 (DIKECILKAN) ===== */
-.ui-11 {
-  position: absolute;
-  width: 88px;       /* sebelumnya besar, sekarang kecil */
-  height: 88px;
-  z-index: 10;
-  display: none;
+/* ===== UI GROUP KIRI (AVATAR + ADS) ===== */
+#uiLeft{
+  position:absolute;
+  top:50px;
+  left:50px;
+  z-index:10;
+  display:none;
 }
 
-#uiAvatar   { top: 60px;  left: 60px; }
-#uiA        { top: 60px;  right: 200px; }
-#uiSettings { top: 60px;  right: 60px; }
+/* 1:1 KECIL */
+.ui-11{
+  width:72px;
+  height:72px;
+  display:block;
+  margin-bottom:14px;
+}
 
-#ui2 { top: 180px; left: 60px; }
-#ui3 { top: 290px; left: 60px; }
-#ui4 { top: 400px; left: 60px; }
+/* 16:9 KECIL */
+.ui-169{
+  width:360px;
+  aspect-ratio:16/9;
+  display:block;
+  margin-top:12px;
+}
 
-/* ===== MEDIA 16:9 (DIKECILKAN) ===== */
-.ui-169 {
-  position: absolute;
-  width: 420px;      /* DIKECILKAN */
-  aspect-ratio: 16 / 9;
-  z-index: 10;
-  display: none;
+/* ===== UI LAIN ===== */
+#uiA{top:50px;right:160px;}
+#uiSettings{top:50px;right:50px;}
+
+#ui2{top:170px;left:50px;}
+#ui3{top:270px;left:50px;}
+#ui4{top:370px;left:50px;}
+
+#uiA,#uiSettings,#ui2,#ui3,#ui4{
+  position:absolute;
+  width:72px;
+  height:72px;
+  z-index:10;
+  display:none;
 }
 
 /* START */
-#uiStart {
-  right: 80px;
-  bottom: 80px;
-}
-
-/* ADS — DI BAWAH AVATAR */
-#uiAds {
-  top: 160px;        /* tepat di bawah avatar */
-  left: 60px;
+#uiStart{
+  position:absolute;
+  right:70px;
+  bottom:70px;
+  width:420px;     /* DIKECILKAN */
+  aspect-ratio:16/9;
+  z-index:10;
+  display:none;
 }
 
 /* ===== LOADING ===== */
-#loadscreen {
-  z-index: 2;
-  display: none;
-}
+#loadscreen{z-index:2;display:none;}
 </style>
 </head>
 
@@ -120,30 +130,33 @@ html, body {
 <div id="screen">
 <div id="game">
 
-<!-- BACKGROUND FLOW -->
+<!-- BACKGROUND -->
 <img src="assets/background/blackscreen.png" id="black1" class="bg">
-<img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none;">
-<img src="assets/background/loadscreen.png" id="loadscreen" class="bg" style="display:none;">
-<img src="assets/background/garage.png" id="garage" class="bg" style="display:none;">
+<img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none">
+<img src="assets/background/loadscreen.png" id="loadscreen" class="bg">
+<img src="assets/background/garage.png" id="garage" class="bg" style="display:none">
 
-<!-- CHARACTER -->
+<!-- MOBIL & KARAKTER -->
 <img src="assets/car/car.png" id="car">
 <img src="assets/character/bubu.gif" id="bubu">
 
-<!-- UI 1:1 -->
-<img src="assets/ui/avatar.png"   id="uiAvatar"   class="ui-11">
-<img src="assets/ui/a.png"        id="uiA"        class="ui-11">
-<img src="assets/ui/settings.png" id="uiSettings" class="ui-11">
-<img src="assets/ui/2.png"        id="ui2"        class="ui-11">
-<img src="assets/ui/3.png"        id="ui3"        class="ui-11">
-<img src="assets/ui/4.png"        id="ui4"        class="ui-11">
+<!-- UI KIRI (AVATAR + ADS — FIXED) -->
+<div id="uiLeft">
+  <img src="assets/ui/avatar.png" class="ui-11">
+  <video class="ui-169" autoplay muted loop playsinline>
+    <source src="assets/media/ads.mp4" type="video/mp4">
+  </video>
+</div>
 
-<!-- MEDIA 16:9 -->
-<img src="assets/media/start.gif" id="uiStart" class="ui-169">
+<!-- UI LAIN -->
+<img src="assets/ui/a.png" id="uiA">
+<img src="assets/ui/settings.png" id="uiSettings">
+<img src="assets/ui/2.png" id="ui2">
+<img src="assets/ui/3.png" id="ui3">
+<img src="assets/ui/4.png" id="ui4">
 
-<video id="uiAds" class="ui-169" autoplay muted loop>
-  <source src="assets/media/ads.mp4" type="video/mp4">
-</video>
+<!-- START -->
+<img src="assets/media/start.gif" id="uiStart">
 
 <!-- AUDIO -->
 <audio id="bgm" src="assets/music/homesong.mp3" loop></audio>
@@ -152,69 +165,51 @@ html, body {
 </div>
 
 <script>
-/* ===== SCALE FIXED 2400x1080 ===== */
-function scaleGame() {
-  const game = document.getElementById('game');
-  const scaleX = window.innerWidth / 2400;
-  const scaleY = window.innerHeight / 1080;
-  game.style.transform = `scale(${Math.min(scaleX, scaleY)})`;
+/* ===== SCALE 2400x1080 ===== */
+function scaleGame(){
+  const g=document.getElementById('game');
+  const s=Math.min(
+    window.innerWidth/2400,
+    window.innerHeight/1080
+  );
+  g.style.transform=`scale(${s})`;
 }
-window.addEventListener('load', scaleGame);
-window.addEventListener('resize', scaleGame);
-window.addEventListener('orientationchange', scaleGame);
+window.addEventListener('load',scaleGame);
+window.addEventListener('resize',scaleGame);
 
-/* ===== VAR ===== */
-black1 = black1;
-watermark = watermark;
-loadscreen = loadscreen;
-garage = garage;
-car = car;
-bubu = bubu;
-bgm = bgm;
+/* ===== FLOW (TIDAK DIUBAH) ===== */
+setTimeout(()=>{
+  black1.style.display="none";
+  watermark.style.display="block";
+},2000);
 
-uiAvatar = uiAvatar;
-uiA = uiA;
-uiSettings = uiSettings;
-ui2 = ui2;
-ui3 = ui3;
-ui4 = ui4;
-uiStart = uiStart;
-uiAds = uiAds;
+setTimeout(()=>{
+  watermark.style.display="none";
+  black1.style.display="block";
+},6000);
 
-/* ===== FLOW (TETAP) ===== */
-setTimeout(() => {
-  black1.style.display = "none";
-  watermark.style.display = "block";
-}, 2000);
+setTimeout(()=>{
+  black1.style.display="none";
+  loadscreen.style.display="block";
+},9000);
 
-setTimeout(() => {
-  watermark.style.display = "none";
-  black1.style.display = "block";
-}, 6000);
+setTimeout(()=>{
+  loadscreen.style.display="none";
+  garage.style.display="block";
 
-setTimeout(() => {
-  black1.style.display = "none";
-  loadscreen.style.display = "block";
-}, 9000);
+  car.style.display="block";
+  bubu.style.display="block";
 
-setTimeout(() => {
-  loadscreen.style.display = "none";
-  garage.style.display = "block";
-
-  car.style.display = "block";
-  bubu.style.display = "block";
-
-  uiAvatar.style.display = "block";
-  uiA.style.display = "block";
-  uiSettings.style.display = "block";
-  ui2.style.display = "block";
-  ui3.style.display = "block";
-  ui4.style.display = "block";
-  uiStart.style.display = "block";
-  uiAds.style.display = "block";
+  uiLeft.style.display="block";
+  uiA.style.display="block";
+  uiSettings.style.display="block";
+  ui2.style.display="block";
+  ui3.style.display="block";
+  ui4.style.display="block";
+  uiStart.style.display="block";
 
   bgm.play().catch(()=>{});
-}, 16000);
+},16000);
 </script>
 
 </body>
