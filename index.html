@@ -19,29 +19,31 @@ html, body {
   overflow: hidden;
 }
 
+/* BACKGROUND */
 .bg {
   position: absolute;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 1;
+}
+
+/* === CHARACTER & CAR (FIX POSISI) === */
+#car {
+  position: absolute;
+  bottom: 40px;
+  left: 35%;
+  height: 28%;
+  z-index: 4;
+  display: none;
 }
 
 #bubu {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 60%;
+  bottom: 40px;
+  left: 47%;
+  height: 55%;
   z-index: 5;
-  display: none;
-}
-
-#car {
-  position: absolute;
-  bottom: 0;
-  left: 30%;
-  height: 30%;
-  z-index: 4;
   display: none;
 }
 </style>
@@ -49,7 +51,7 @@ html, body {
 
 <body>
 
-<!-- BACKGROUND -->
+<!-- BACKGROUND FLOW -->
 <img src="assets/background/blackscreen.png" id="black1" class="bg">
 <img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none;">
 <img src="assets/background/loadscreen.png" id="loadscreen" class="bg" style="display:none;">
@@ -60,13 +62,26 @@ html, body {
 <img src="assets/car/car.png" id="car">
 
 <!-- UI TAMBAHAN (HIDDEN) -->
-<img id="uiAvatar" src="assets/ui/avatar.png" style="position:absolute;top:20px;left:20px;width:64px;height:64px;display:none;z-index:10;">
-<img id="uiA" src="assets/ui/a.png" style="position:absolute;top:20px;right:120px;width:64px;height:64px;display:none;z-index:10;">
-<img id="uiSettings" src="assets/ui/settings.png" style="position:absolute;top:20px;right:20px;width:64px;height:64px;display:none;z-index:10;">
-<img id="ui2" src="assets/ui/2.png" style="position:absolute;top:120px;left:20px;width:64px;height:64px;display:none;z-index:10;">
-<img id="ui3" src="assets/ui/3.png" style="position:absolute;top:200px;left:20px;width:64px;height:64px;display:none;z-index:10;">
-<img id="ui4" src="assets/ui/4.png" style="position:absolute;top:280px;left:20px;width:64px;height:64px;display:none;z-index:10;">
-<img id="uiStart" src="assets/media/start.gif" style="position:absolute;bottom:20px;right:20px;width:320px;aspect-ratio:16/9;display:none;z-index:10;">
+<img id="uiAvatar" src="assets/ui/avatar.png"
+style="position:absolute;top:20px;left:20px;width:64px;height:64px;display:none;z-index:10;">
+
+<img id="uiA" src="assets/ui/a.png"
+style="position:absolute;top:20px;right:120px;width:64px;height:64px;display:none;z-index:10;">
+
+<img id="uiSettings" src="assets/ui/settings.png"
+style="position:absolute;top:20px;right:20px;width:64px;height:64px;display:none;z-index:10;">
+
+<img id="ui2" src="assets/ui/2.png"
+style="position:absolute;top:120px;left:20px;width:64px;height:64px;display:none;z-index:10;">
+
+<img id="ui3" src="assets/ui/3.png"
+style="position:absolute;top:200px;left:20px;width:64px;height:64px;display:none;z-index:10;">
+
+<img id="ui4" src="assets/ui/4.png"
+style="position:absolute;top:280px;left:20px;width:64px;height:64px;display:none;z-index:10;">
+
+<img id="uiStart" src="assets/media/start.gif"
+style="position:absolute;bottom:20px;right:20px;width:320px;aspect-ratio:16/9;display:none;z-index:10;">
 
 <video id="uiAds" autoplay muted loop
 style="position:absolute;top:120px;left:120px;width:320px;aspect-ratio:16/9;display:none;z-index:10;">
@@ -95,37 +110,30 @@ ui4 = document.getElementById("ui4");
 uiStart = document.getElementById("uiStart");
 uiAds = document.getElementById("uiAds");
 
-/* FLOW */
-
-/* black → watermark */
+/* FLOW (TIDAK DIUBAH) */
 setTimeout(() => {
   black1.style.display = "none";
   watermark.style.display = "block";
 }, 2000);
 
-/* watermark → black */
 setTimeout(() => {
   watermark.style.display = "none";
   black1.style.display = "block";
 }, 6000);
 
-/* black → loadscreen */
 setTimeout(() => {
   black1.style.display = "none";
   loadscreen.style.display = "block";
 }, 9000);
 
-/* ⏳ LOADSCREEN DIPERPANJANG */
-/* loadscreen → garage */
+/* LOADSCREEN DIPERPANJANG */
 setTimeout(() => {
   loadscreen.style.display = "none";
   garage.style.display = "block";
 
-  /* FIX: pastikan karakter muncul */
   bubu.style.display = "block";
   car.style.display = "block";
 
-  /* UI */
   uiAvatar.style.display = "block";
   uiA.style.display = "block";
   uiSettings.style.display = "block";
@@ -135,10 +143,9 @@ setTimeout(() => {
   uiStart.style.display = "block";
   uiAds.style.display = "block";
 
-  /* 🔊 MUSIC BARU DIMULAI DI SINI */
+  /* MUSIC BARU JALAN SAAT GARAGE MUNCUL */
   bgm.play();
-
-}, 16000);  /* ← sebelumnya 13000, sekarang lebih lama */
+}, 16000);
 
 /* PWA */
 if ("serviceWorker" in navigator) {
