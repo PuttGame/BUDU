@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 
-<title>BUDU GAME</title>
+<title>BUDU</title>
 
 <style>
 html, body {
@@ -22,16 +22,15 @@ html, body {
   touch-action: none;
 }
 
-/* layar hp */
+/* ===== SCREEN & GAME (MOBILE ONLY) ===== */
 #screen {
   position: fixed;
   inset: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
 }
 
-/* game asli */
 #game {
   position: relative;
   width: 2400px;
@@ -41,58 +40,77 @@ html, body {
   overflow: hidden;
 }
 
-/* loading */
-#loading {
-  position: absolute;
-  inset: 0;
-  background: black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
-
-#loading img {
-  width: 600px;
-}
-
-/* GARAGE */
-#garage {
-  position: absolute;
-  inset: 0;
-  display: none;
-}
-
-#garage-bg {
+/* ===== BACKGROUND ===== */
+.bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  z-index: 1;
 }
 
-/* mobil */
+/* ===== CHARACTER & CAR ===== */
 #car {
   position: absolute;
-  bottom: 120px;
-  left: 850px;
-  width: 420px;
+  bottom: 100px;
+  left: 820px;
+  width: 360px;      /* DIKECILKAN */
+  z-index: 4;
+  display: none;
 }
 
-/* bubu */
 #bubu {
   position: absolute;
-  bottom: 120px;
-  left: 1320px;
-  width: 360px;
+  bottom: 100px;
+  left: 1200px;
+  width: 300px;      /* DIKECILKAN */
+  z-index: 5;
+  display: none;
+}
+
+/* ===== UI 1:1 (DIKECILKAN) ===== */
+.ui-11 {
+  position: absolute;
+  width: 88px;       /* sebelumnya besar, sekarang kecil */
+  height: 88px;
+  z-index: 10;
+  display: none;
+}
+
+#uiAvatar   { top: 60px;  left: 60px; }
+#uiA        { top: 60px;  right: 200px; }
+#uiSettings { top: 60px;  right: 60px; }
+
+#ui2 { top: 180px; left: 60px; }
+#ui3 { top: 290px; left: 60px; }
+#ui4 { top: 400px; left: 60px; }
+
+/* ===== MEDIA 16:9 (DIKECILKAN) ===== */
+.ui-169 {
+  position: absolute;
+  width: 420px;      /* DIKECILKAN */
+  aspect-ratio: 16 / 9;
+  z-index: 10;
+  display: none;
 }
 
 /* START */
-#startBtn {
-  position: absolute;
-  right: 150px;
-  bottom: 180px;
-  width: 520px;
+#uiStart {
+  right: 80px;
+  bottom: 80px;
+}
+
+/* ADS — DI BAWAH AVATAR */
+#uiAds {
+  top: 160px;        /* tepat di bawah avatar */
+  left: 60px;
+}
+
+/* ===== LOADING ===== */
+#loadscreen {
+  z-index: 2;
+  display: none;
 }
 </style>
 </head>
@@ -100,56 +118,103 @@ html, body {
 <body>
 
 <div id="screen">
-  <div id="game">
+<div id="game">
 
-    <!-- LOADING -->
-    <div id="loading">
-      <img src="assets/loadscreen.png">
-    </div>
+<!-- BACKGROUND FLOW -->
+<img src="assets/background/blackscreen.png" id="black1" class="bg">
+<img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none;">
+<img src="assets/background/loadscreen.png" id="loadscreen" class="bg" style="display:none;">
+<img src="assets/background/garage.png" id="garage" class="bg" style="display:none;">
 
-    <!-- GARAGE -->
-    <div id="garage">
-      <img id="garage-bg" src="assets/garage.png">
+<!-- CHARACTER -->
+<img src="assets/car/car.png" id="car">
+<img src="assets/character/bubu.gif" id="bubu">
 
-      <img id="car" src="assets/mobil.png">
-      <img id="bubu" src="assets/bubu.gif">
+<!-- UI 1:1 -->
+<img src="assets/ui/avatar.png"   id="uiAvatar"   class="ui-11">
+<img src="assets/ui/a.png"        id="uiA"        class="ui-11">
+<img src="assets/ui/settings.png" id="uiSettings" class="ui-11">
+<img src="assets/ui/2.png"        id="ui2"        class="ui-11">
+<img src="assets/ui/3.png"        id="ui3"        class="ui-11">
+<img src="assets/ui/4.png"        id="ui4"        class="ui-11">
 
-      <img id="startBtn" src="assets/start.png">
-    </div>
+<!-- MEDIA 16:9 -->
+<img src="assets/media/start.gif" id="uiStart" class="ui-169">
 
-    <!-- AUDIO -->
-    <audio id="bgm" src="assets/homesong.mp3" loop></audio>
+<video id="uiAds" class="ui-169" autoplay muted loop>
+  <source src="assets/media/ads.mp4" type="video/mp4">
+</video>
 
-  </div>
+<!-- AUDIO -->
+<audio id="bgm" src="assets/music/homesong.mp3" loop></audio>
+
+</div>
 </div>
 
 <script>
-/* SCALE FIXED MOBILE */
+/* ===== SCALE FIXED 2400x1080 ===== */
 function scaleGame() {
   const game = document.getElementById('game');
   const scaleX = window.innerWidth / 2400;
   const scaleY = window.innerHeight / 1080;
-  const scale = Math.min(scaleX, scaleY);
-  game.style.transform = `scale(${scale})`;
+  game.style.transform = `scale(${Math.min(scaleX, scaleY)})`;
 }
+window.addEventListener('load', scaleGame);
 window.addEventListener('resize', scaleGame);
 window.addEventListener('orientationchange', scaleGame);
-window.addEventListener('load', scaleGame);
 
-/* LOADING FLOW */
-const loading = document.getElementById('loading');
-const garage = document.getElementById('garage');
-const bgm = document.getElementById('bgm');
+/* ===== VAR ===== */
+black1 = black1;
+watermark = watermark;
+loadscreen = loadscreen;
+garage = garage;
+car = car;
+bubu = bubu;
+bgm = bgm;
 
-/* loading agak lama */
+uiAvatar = uiAvatar;
+uiA = uiA;
+uiSettings = uiSettings;
+ui2 = ui2;
+ui3 = ui3;
+ui4 = ui4;
+uiStart = uiStart;
+uiAds = uiAds;
+
+/* ===== FLOW (TETAP) ===== */
 setTimeout(() => {
-  loading.style.display = 'none';
-  garage.style.display = 'block';
+  black1.style.display = "none";
+  watermark.style.display = "block";
+}, 2000);
 
-  /* music NYALA SAAT garage muncul */
+setTimeout(() => {
+  watermark.style.display = "none";
+  black1.style.display = "block";
+}, 6000);
+
+setTimeout(() => {
+  black1.style.display = "none";
+  loadscreen.style.display = "block";
+}, 9000);
+
+setTimeout(() => {
+  loadscreen.style.display = "none";
+  garage.style.display = "block";
+
+  car.style.display = "block";
+  bubu.style.display = "block";
+
+  uiAvatar.style.display = "block";
+  uiA.style.display = "block";
+  uiSettings.style.display = "block";
+  ui2.style.display = "block";
+  ui3.style.display = "block";
+  ui4.style.display = "block";
+  uiStart.style.display = "block";
+  uiAds.style.display = "block";
+
   bgm.play().catch(()=>{});
-
-}, 2500); // << bisa kamu naikin lagi
+}, 16000);
 </script>
 
 </body>
