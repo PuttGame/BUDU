@@ -19,7 +19,6 @@ html, body {
   overflow: hidden;
 }
 
-/* BACKGROUND */
 .bg {
   position: absolute;
   width: 100%;
@@ -27,7 +26,6 @@ html, body {
   object-fit: cover;
 }
 
-/* CHARACTER */
 #bubu {
   position: absolute;
   bottom: 0;
@@ -54,13 +52,14 @@ html, body {
 <!-- BACKGROUND FLOW (LAMA) -->
 <img src="assets/background/blackscreen.png" id="black1" class="bg">
 <img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none;">
+<img src="assets/background/loadscreen.png" id="loadscreen" class="bg" style="display:none;">
 <img src="assets/background/garage.png" id="garage" class="bg" style="display:none;">
 
 <!-- CHARACTER (LAMA) -->
 <img src="assets/character/bubu.gif" id="bubu">
 <img src="assets/car/car.png" id="car">
 
-<!-- ================= TAMBAHAN UI (HIDDEN) ================= -->
+<!-- ================= UI TAMBAHAN (TIDAK DIUBAH) ================= -->
 
 <img id="uiAvatar" src="assets/ui/avatar.png"
 style="position:absolute;top:20px;left:20px;width:64px;height:64px;display:none;z-index:10;">
@@ -95,6 +94,7 @@ style="position:absolute;top:120px;left:120px;width:320px;aspect-ratio:16/9;disp
 /* ===== VAR LAMA ===== */
 black1 = document.getElementById("black1");
 watermark = document.getElementById("watermark");
+loadscreen = document.getElementById("loadscreen");
 garage = document.getElementById("garage");
 bubu = document.getElementById("bubu");
 car = document.getElementById("car");
@@ -110,7 +110,8 @@ ui4 = document.getElementById("ui4");
 uiStart = document.getElementById("uiStart");
 uiAds = document.getElementById("uiAds");
 
-/* ===== FLOW LAMA ===== */
+/* ===== FLOW LAMA + LOADSCREEN ===== */
+
 setTimeout(() => {
   black1.style.display = "none";
   watermark.style.display = "block";
@@ -121,13 +122,19 @@ setTimeout(() => {
   black1.style.display = "block";
 }, 6000);
 
+/* ⬇️ LOADSCREEN MUNCUL */
 setTimeout(() => {
   black1.style.display = "none";
+  loadscreen.style.display = "block";
+}, 9000);
+
+/* ⬇️ GARAGE + UI */
+setTimeout(() => {
+  loadscreen.style.display = "none";
   garage.style.display = "block";
   bubu.style.display = "block";
   car.style.display = "block";
 
-  /* ===== MUNCULKAN UI BARU ===== */
   uiAvatar.style.display = "block";
   uiA.style.display = "block";
   uiSettings.style.display = "block";
