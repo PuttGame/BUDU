@@ -5,147 +5,149 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BUDU</title>
 
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#000000">
+
 <style>
 html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background: black;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  overflow: hidden;
 }
 
 /* BACKGROUND */
 .bg {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-/* UI COMMON */
-.ui {
-    position: absolute;
-    z-index: 10;
-}
-
-/* 1:1 ICONS */
-.square {
-    width: 64px;
-    height: 64px;
-    object-fit: contain;
-}
-
-/* 16:9 MEDIA */
-.ratio169 {
-    width: 320px;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    background: black;
-}
-
-/* POSITIONS */
-#avatar { top: 20px; left: 20px; }
-#yellow { top: 20px; right: 120px; }
-#settings { top: 20px; right: 20px; }
-
-#green { top: 120px; left: 20px; }
-#purple { top: 200px; left: 20px; }
-#red { top: 280px; left: 20px; }
-
-#startGif { bottom: 20px; right: 20px; }
-#adsVideo { top: 120px; left: 120px; }
-
-/* CHARACTER & CAR */
+/* CHARACTER */
 #bubu {
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    height: 60%;
-    z-index: 5;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 60%;
+  z-index: 5;
+  display: none;
 }
 
 #car {
-    position: absolute;
-    bottom: 0;
-    left: 30%;
-    height: 30%;
-    z-index: 4;
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  height: 30%;
+  z-index: 4;
+  display: none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- EXISTING BACKGROUNDS -->
+<!-- BACKGROUND FLOW (LAMA) -->
 <img src="assets/background/blackscreen.png" id="black1" class="bg">
 <img src="assets/background/watermark.png" id="watermark" class="bg" style="display:none;">
 <img src="assets/background/garage.png" id="garage" class="bg" style="display:none;">
 
-<!-- EXISTING CHARACTER -->
-<img src="assets/character/bubu.gif" id="bubu" style="display:none;">
-<img src="assets/car/car.png" id="car" style="display:none;">
+<!-- CHARACTER (LAMA) -->
+<img src="assets/character/bubu.gif" id="bubu">
+<img src="assets/car/car.png" id="car">
 
-<!-- 🔵 AVATAR 1:1 -->
-<img src="assets/ui/avatar.png" id="avatar" class="ui square">
+<!-- ================= TAMBAHAN UI (HIDDEN) ================= -->
 
-<!-- 🟡 a.png -->
-<img src="assets/ui/a.png" id="yellow" class="ui square">
+<img id="uiAvatar" src="assets/ui/avatar.png"
+style="position:absolute;top:20px;left:20px;width:64px;height:64px;display:none;z-index:10;">
 
-<!-- ⚪ SETTINGS -->
-<img src="assets/ui/settings.png" id="settings" class="ui square">
+<img id="uiA" src="assets/ui/a.png"
+style="position:absolute;top:20px;right:120px;width:64px;height:64px;display:none;z-index:10;">
 
-<!-- 🟢 2.png -->
-<img src="assets/ui/2.png" id="green" class="ui square">
+<img id="uiSettings" src="assets/ui/settings.png"
+style="position:absolute;top:20px;right:20px;width:64px;height:64px;display:none;z-index:10;">
 
-<!-- 🟣 3.png -->
-<img src="assets/ui/3.png" id="purple" class="ui square">
+<img id="ui2" src="assets/ui/2.png"
+style="position:absolute;top:120px;left:20px;width:64px;height:64px;display:none;z-index:10;">
 
-<!-- 🔴 4.png -->
-<img src="assets/ui/4.png" id="red" class="ui square">
+<img id="ui3" src="assets/ui/3.png"
+style="position:absolute;top:200px;left:20px;width:64px;height:64px;display:none;z-index:10;">
 
-<!-- 🔷 START GIF 16:9 -->
-<img src="assets/media/start.gif" id="startGif" class="ui ratio169">
+<img id="ui4" src="assets/ui/4.png"
+style="position:absolute;top:280px;left:20px;width:64px;height:64px;display:none;z-index:10;">
 
-<!-- 🌸 ADS VIDEO 16:9 -->
-<video id="adsVideo" class="ui ratio169" autoplay muted loop>
-    <source src="assets/media/ads.mp4" type="video/mp4">
+<img id="uiStart" src="assets/media/start.gif"
+style="position:absolute;bottom:20px;right:20px;width:320px;aspect-ratio:16/9;display:none;z-index:10;">
+
+<video id="uiAds" autoplay muted loop
+style="position:absolute;top:120px;left:120px;width:320px;aspect-ratio:16/9;display:none;z-index:10;">
+  <source src="assets/media/ads.mp4" type="video/mp4">
 </video>
 
 <!-- AUDIO -->
 <audio id="bgm" src="assets/music/homesong.mp3" loop></audio>
 
 <script>
-const black1 = document.getElementById("black1");
-const watermark = document.getElementById("watermark");
-const garage = document.getElementById("garage");
-const bubu = document.getElementById("bubu");
-const car = document.getElementById("car");
-const bgm = document.getElementById("bgm");
+/* ===== VAR LAMA ===== */
+black1 = document.getElementById("black1");
+watermark = document.getElementById("watermark");
+garage = document.getElementById("garage");
+bubu = document.getElementById("bubu");
+car = document.getElementById("car");
+bgm = document.getElementById("bgm");
 
+/* ===== VAR TAMBAHAN ===== */
+uiAvatar = document.getElementById("uiAvatar");
+uiA = document.getElementById("uiA");
+uiSettings = document.getElementById("uiSettings");
+ui2 = document.getElementById("ui2");
+ui3 = document.getElementById("ui3");
+ui4 = document.getElementById("ui4");
+uiStart = document.getElementById("uiStart");
+uiAds = document.getElementById("uiAds");
+
+/* ===== FLOW LAMA ===== */
 setTimeout(() => {
-    black1.style.display = "none";
-    watermark.style.display = "block";
+  black1.style.display = "none";
+  watermark.style.display = "block";
 }, 2000);
 
 setTimeout(() => {
-    watermark.style.display = "none";
-    black1.style.display = "block";
+  watermark.style.display = "none";
+  black1.style.display = "block";
 }, 6000);
 
 setTimeout(() => {
-    black1.style.display = "none";
-    garage.style.display = "block";
-    bubu.style.display = "block";
-    car.style.display = "block";
+  black1.style.display = "none";
+  garage.style.display = "block";
+  bubu.style.display = "block";
+  car.style.display = "block";
+
+  /* ===== MUNCULKAN UI BARU ===== */
+  uiAvatar.style.display = "block";
+  uiA.style.display = "block";
+  uiSettings.style.display = "block";
+  ui2.style.display = "block";
+  ui3.style.display = "block";
+  ui4.style.display = "block";
+  uiStart.style.display = "block";
+  uiAds.style.display = "block";
+
 }, 13000);
 
-// autoplay unlock
+/* AUTOPLAY UNLOCK */
 document.body.addEventListener("click", () => {
-    bgm.play();
+  bgm.play();
 }, { once: true });
+
+/* PWA */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+}
 </script>
 
 </body>
