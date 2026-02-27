@@ -2,196 +2,116 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width,height=device-height,
-initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>BUDU</title>
 
-<!-- PWA WAJIB -->
+<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 <style>
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:black;
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: black;
 }
 
-/* ===== VIEWPORT ===== */
-#screen{
-  position:fixed;
-  inset:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
+/* Semua layar */
+.screen {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    top: 0;
+    left: 0;
 }
 
-/* ===== GAME WORLD ===== */
-#game{
-  position:relative;
-  width:2400px;
-  height:1080px;
-  background:black;
-  transform-origin:center center;
-  overflow:hidden;
+/* Loading kecil kanan bawah */
+#loadingContainer {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    display: none;
+    align-items: center;
+    color: white;
+    font-size: 12px;
+    font-family: sans-serif;
 }
 
-/* ===== BACKGROUND ===== */
-.bg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  z-index:1;
+.spinner {
+    width: 12px;
+    height: 12px;
+    border: 2px solid white;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    margin-right: 6px;
+    animation: spin 0.8s linear infinite;
 }
 
-/* ===== MOBIL & BUBU ===== */
-#car{
-  position:absolute;
-  bottom:90px;
-  left:820px;
-  width:300px;
-  z-index:4;
-  display:none;
-}
-#bubu{
-  position:absolute;
-  bottom:90px;
-  left:1130px;
-  width:260px;
-  z-index:5;
-  display:none;
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
-/* ===== UI LEFT (AVATAR + ADS) ===== */
-#uiLeft{
-  position:absolute;
-  top:50px;
-  left:50px;
-  z-index:10;
-  display:none;
+/* ================= TAMBAHAN (TIDAK MENGUBAH YANG LAIN) ================= */
+#bg-garage-load {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    display: none;
+    z-index: 999;
 }
-.ui-11{
-  width:72px;
-  height:72px;
-  display:block;
-  margin-bottom:14px;
-}
-.ui-169{
-  width:360px;
-  aspect-ratio:16/9;
-  display:block;
-}
+/* ================= AKHIR TAMBAHAN ================= */
 
-/* ===== UI LAIN ===== */
-.ui-btn{
-  position:absolute;
-  width:72px;
-  height:72px;
-  z-index:10;
-  display:none;
-}
-#uiA{top:50px;right:160px;}
-#uiSettings{top:50px;right:50px;}
-#ui2{top:170px;left:50px;}
-#ui3{top:270px;left:50px;}
-#ui4{top:370px;left:50px;}
-
-/* START */
-#uiStart{
-  position:absolute;
-  right:70px;
-  bottom:70px;
-  width:420px;
-  aspect-ratio:16/9;
-  z-index:10;
-  display:none;
-}
 </style>
 </head>
-
 <body>
 
-<div id="screen">
-<div id="game">
+<img id="screen1" class="screen" src="assets/background/blackscreen.png">
+<img id="screen2" class="screen" src="assets/background/garage.png" style="display:none;">
+<img id="screen3" class="screen" src="assets/background/watermark.png" style="display:none;">
 
-<!-- BACKGROUND -->
-<img src="assets/background/blackscreen.png" class="bg" id="black">
-<img src="assets/background/loadscreen.png" class="bg" id="load" style="display:none">
-<img src="assets/background/garage.png" class="bg" id="garage" style="display:none">
-
-<!-- MOBIL & KARAKTER -->
-<img src="assets/car/car.png" id="car">
-<img src="assets/character/bubu.gif" id="bubu">
-
-<!-- UI LEFT -->
-<div id="uiLeft">
-  <img src="assets/ui/avatar.png" class="ui-11">
-  <video class="ui-169" autoplay muted loop playsinline>
-    <source src="assets/media/ads.mp4" type="video/mp4">
-  </video>
+<div id="loadingContainer">
+    <div class="spinner"></div>
+    <div>Loading...</div>
 </div>
 
-<!-- UI BUTTON -->
-<img src="assets/ui/a.png" class="ui-btn" id="uiA">
-<img src="assets/ui/settings.png" class="ui-btn" id="uiSettings">
-<img src="assets/ui/2.png" class="ui-btn" id="ui2">
-<img src="assets/ui/3.png" class="ui-btn" id="ui3">
-<img src="assets/ui/4.png" class="ui-btn" id="ui4">
-
-<!-- START -->
-<img src="assets/media/start.gif" id="uiStart">
-
-<audio id="bgm" src="assets/music/homesong.mp3" loop></audio>
-
-</div>
-</div>
+<audio id="homeMusic" src="assets/music/homesong.mp3" loop></audio>
 
 <script>
-/* SCALE FIX */
-function scaleGame(){
-  const g=document.getElementById('game');
-  const s=Math.min(
-    window.innerWidth/2400,
-    window.innerHeight/1080
-  );
-  g.style.transform=`scale(${s})`;
-}
-window.addEventListener('load',scaleGame);
-window.addEventListener('resize',scaleGame);
+document.addEventListener("DOMContentLoaded", () => {
+    const loading = document.getElementById("loadingContainer");
+    loading.style.display = "flex";
 
-/* FLOW */
-setTimeout(()=>{ black.style.display="none"; load.style.display="block"; },3000);
-setTimeout(()=>{
-  load.style.display="none";
-  garage.style.display="block";
-  car.style.display="block";
-  bubu.style.display="block";
-  uiLeft.style.display="block";
-  uiA.style.display="block";
-  uiSettings.style.display="block";
-  ui2.style.display="block";
-  ui3.style.display="block";
-  ui4.style.display="block";
-  uiStart.style.display="block";
-  bgm.play().catch(()=>{});
-},8000);
+    setTimeout(() => {
+        loading.style.display = "none";
+        document.getElementById("screen1").style.display = "none";
+        document.getElementById("screen2").style.display = "block";
 
-/* REGISTER SERVICE WORKER (INI KUNCI INSTALL) */
-if('serviceWorker'in navigator){
-  navigator.serviceWorker.register('service-worker.js');
-}
+        const music = document.getElementById("homeMusic");
+        music.play().catch(()=>{});
+    }, 2000);
+});
 </script>
+
+<!-- ================= TAMBAHAN (SETELAH LOAD SELESAI) ================= -->
+<img id="bg-garage-load" src="assets/background/bggarage.png" alt="Garage Background">
+
+<script>
+window.addEventListener("load", function () {
+    var bg = document.getElementById("bg-garage-load");
+    if (bg) {
+        bg.style.display = "block";
+    }
+});
+</script>
+<!-- ================= AKHIR TAMBAHAN ================= -->
 
 </body>
 </html>
